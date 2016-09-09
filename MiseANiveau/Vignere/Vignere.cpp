@@ -14,7 +14,7 @@ void Vignere::readText(const std::string& filename){
         }
     }
 
-    file.close();
+    thefile.close();
 }
 
 void Vignere::cryptData(const std::string& key){
