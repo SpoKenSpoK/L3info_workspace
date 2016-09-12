@@ -8,9 +8,9 @@ class Vignere{
 public:
     // Attributs
     std::ifstream file;
-
     std::string tabText;
     std::string cryptedData;
+    std::string key;
 
     // Méthodes
     inline Vignere(){}
@@ -18,6 +18,8 @@ public:
     void readText(const std::string&);
     void cryptData(const std::string&);
     void writeData(const std::string&, const std::string&) const;
+    void decryptWithKey(bool =false);
+
 };
 
 #endif
