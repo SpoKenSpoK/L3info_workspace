@@ -5,13 +5,14 @@ int main(){
     std::string filename = "vignere_free.txt";
     std::string encryptFilename = "vignere_crypted.txt";
     std::string keyfile = "key.txt";
-    std::string key = "MARJOLAINE";
+    std::string key = "KIWI";
 
     vignere->readText(filename);
     vignere->cryptData(key);
     vignere->writeData(encryptFilename, keyfile);
     vignere->decryptWithKey(false);
     vignere->decryptWithOutKey(3);
+    vignere->echoResult();
 
 /*
     std::cerr << vignere->tabText << std::endl;
