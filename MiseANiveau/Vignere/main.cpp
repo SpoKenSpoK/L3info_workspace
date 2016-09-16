@@ -11,6 +11,7 @@ int main(){
     vignere->cryptData(key);
     vignere->writeData(encryptFilename, keyfile);
     vignere->decryptWithKey(false);
+    vignere->decryptWithOutKey(3);
 
 /*
     std::cerr << vignere->tabText << std::endl;

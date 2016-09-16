@@ -51,7 +51,7 @@ void Vignere::decryptWithKey(bool read){
     if(read){
         std::string filename;
         std::string tmp;
-        std::cerr << "Entrez un nom de fichier" << std::endl;
+        std::cerr << "Entrez un nom de fichier : " << std::endl;
         std::cin >> filename;
 
         readText(filename);
@@ -65,15 +65,7 @@ void Vignere::decryptWithKey(bool read){
     for(unsigned int i = 0; i < cryptedData.length(); ++i){
         value = int(cryptedData[i] - (key[j] - 'A'));
 
-        std::cerr << int(cryptedData[i]) << " | " << key[j] - 'A' << " | " << value << std::endl;
-
-        if(value < int('A')){
-            std::cerr << int(cryptedData[i]) << std::endl;
-            std::cerr << int('Z') - value << std::endl;
-            value = int('Z') - value;
-        }
-
-
+        if(value < int('A')) value = int('Z') -  (int('A') - value);
 
         tabText += value;
 
@@ -81,5 +73,62 @@ void Vignere::decryptWithKey(bool read){
         else ++j;
     }
 
-    std::cerr << tabText << std::endl;
+    std::cerr << "decryptedData : " << tabText << std::endl;
 }
+
+void Vignere::decryptWithOutKey(unsigned int nbChar){
+    tabStr = new thestr[cryptedData.length() - (nbChar - 1)];
+    for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i) tabStr[i].tab = new unsigned int[cryptedData.length() - (nbChar - 1)];
+
+    for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i){
+        // Tester tout d'abord deux par deux
+        sortString(nbChar,i);
+    }
+}
+
+void Vignere::sortString(unsigned int nbChar, unsigned int index){
+    unsigned int cpt = 0;
+    std::string tmpStr;
+
+    tmpStr = getLittleStr(nbChar,index);
+
+    do{
+        if(tmpStr == tabStr[cpt].str){
+            tabStr[cpt].nbocc +=1;
+            tabStr[cpt].tab[getTailFromTab(tabStr[cpt].tab)] = cpt;
+        }
+        else{
+            /*tabStr[getTailFromTabStruct(tabStr)].nbocc = 1;
+            tabStr[getTailFromTabStruct(tabStr)].tab[0] = cpt;
+            tabStr[getTailFromTabStruct(tabStr)].str = tmpStr;
+            ++nbStr;*/
+        }
+        ++cpt;
+    }while( cpt < cryptedData.length() - (nbChar - 1) );
+}
+
+// Cette fonction retourne
+std::string Vignere::getLittleStr(unsigned int nbChar, unsigned int index){
+    std::string tmpStr;
+    for(unsigned int i=0; i<nbChar; ++i){
+        tmpStr+=cryptedData[index+i];
+    }
+    return tmpStr;
+}
+
+unsigned int Vignere::getTailFromTab(unsigned int tabInt[]){
+    for(unsigned int i=0; i<cryptedData.length(); ++i) if(tabInt[i] == 0) return i;
+    return 0;
+}
+
+unsigned int Vignere::getTailFromTabStruct(thestr tab[]){
+    for(unsigned int i=0; i<nbStr; ++i) if(tab[i].nbocc == 0) return i;
+    return 0;
+}
+
+/*void Vignere::parseStruct(){
+
+}*/
+
+/*void Vignere::addOccurence(unsigned int index){
+}*/
