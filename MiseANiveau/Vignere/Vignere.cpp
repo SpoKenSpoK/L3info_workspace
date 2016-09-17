@@ -7,8 +7,7 @@ void Vignere::readText(const std::string& filename){
     unsigned int j = 0;
     while(!thefile.eof()){
         getline(thefile,row);
-        for(unsigned int i = 0; i < row.length(); ++i)
-        {
+        for(unsigned int i = 0; i < row.length(); ++i){
             tabText += row[i];
             ++j;
         }
@@ -80,12 +79,13 @@ void Vignere::decryptWithOutKey(unsigned int nbChar){
     nbStr = 0;
     this->nbChar = nbChar;
     tabStr = new thestr[cryptedData.length() - (nbChar - 1)];
-    for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i)
-        tabStr[i].tab = new unsigned int[cryptedData.length() - (nbChar - 1)];
-
     for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i){
-        sortString(i);
+        tabStr[i].tab = new unsigned int[cryptedData.length() - (nbChar - 1)];
+        for(unsigned int j=0; j<cryptedData.length() - (nbChar - 1); ++j)
+            tabStr[i].tab[j] = 0;
     }
+
+    for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i) sortString(i);
 }
 
 void Vignere::sortString(unsigned int index){
@@ -95,16 +95,15 @@ void Vignere::sortString(unsigned int index){
 
     while(!done){
         if(tmpStr == tabStr[cpt].str){
+            tabStr[cpt].tab[tabStr[cpt].nbocc] = index;
             tabStr[cpt].nbocc +=1;
-            tabStr[cpt].tab[tabStr[cpt].lengthTab] = index;
-            tabStr[cpt].lengthTab +=1;
+            //tabStr[cpt].lengthTab +=1;
             done = true;
         }
         ++cpt;
 
         if(cpt > nbStr ){
             tabStr[nbStr].nbocc = 1;
-            tabStr[nbStr].lengthTab = 1;
             tabStr[nbStr].tab[0] = index;
             tabStr[nbStr].str = tmpStr;
             ++nbStr;
@@ -122,9 +121,41 @@ std::string Vignere::getLittleStr(unsigned int index){
     return tmpStr;
 }
 
+void Vignere::get_All_Length(){
+    // Parcourir l'ensemble des données trouvées, ne prendre en compte que celles ayant une occurence strictement suppérieure à 1
+    unsigned int cpt;
+
+    tabLenOfKey = new unsigned int[cryptedData.length() - (nbChar - 1)];
+
+    for(unsigned int i=0; i<nbStr; ++i){
+        if(tabStr[i].nbocc > 1){
+            for(unsigned int j=tabStr[i].nbocc-1; j>0; --j){
+                cpt = 0;
+                do{
+                    ++cpt;
+
+                    std::cerr << "Nombre d'occurences : " << tabStr[i].nbocc << std::endl;
+                    //std::cerr << j << " " << tabStr[i].tab[j] << " -- " << cpt << " " << j - cpt /*<< tabStr[i].tab[j - cpt]*/ << std::endl;
+                    /*tabLenOfKey[nbLenOfKey] = tabStr[i].tab[j] - tabStr[i].tab[j - cpt];
+                    ++nbLenOfKey;*/
+                }while(tabStr[i].nbocc-1 != cpt);
+            }
+        }
+    }
+}
+
+
 void Vignere::echoResult(){
-    for(unsigned int i=0; i<nbStr; ++i)
-        std::cerr << tabStr[i].str << " | " << tabStr[i].nbocc << std::endl;
+    for(unsigned int i=0; i<nbStr; ++i){
+        std::cerr << tabStr[i].str << " | " << tabStr[i].nbocc << " Index : " << tabStr[i].tab[0] << " " << tabStr[i].tab[1] << " " << tabStr[i].tab[2] << " " << tabStr[i].tab[3] << std::endl;
+    }
+}
+
+void Vignere::cleanDelete(){
+    for(unsigned int i=0; i<cryptedData.length() - (nbChar - 1); ++i){
+        delete[] tabStr[i].tab;
+    }
+    delete[] tabStr;
 }
 
 // Faire le calcul de PGCD

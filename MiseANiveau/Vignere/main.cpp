@@ -12,7 +12,10 @@ int main(){
     vignere->writeData(encryptFilename, keyfile);
     vignere->decryptWithKey(false);
     vignere->decryptWithOutKey(3);
-    vignere->echoResult();
+    vignere->get_All_Length();
+    //vignere->echoResult();
+
+    vignere->cleanDelete();
 
 /*
     std::cerr << vignere->tabText << std::endl;

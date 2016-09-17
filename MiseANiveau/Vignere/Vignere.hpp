@@ -9,7 +9,6 @@ struct thestr{
     std::string str; // La chaîne de caractère trouvée dans le texte crypté (minimum deux caractères)
     unsigned int nbocc; // Le nombre de fois qu'apparaît la châine de caractère
     unsigned int* tab; // Les index où apparaissent cette chaîne de caractère
-    unsigned int lengthTab;
 };
 
 class Vignere{
@@ -25,9 +24,13 @@ public:
     thestr* tabStr;
     unsigned int nbStr;
 
+    unsigned int* tabLenOfKey;
+    unsigned int nbLenOfKey;
+    unsigned int* tabOfpgcd;
+
     // Méthodes
     inline Vignere(){nbStr=1;}
-    inline ~Vignere(){}
+    inline ~Vignere(){ delete[] tabLenOfKey;}
     void readText(const std::string&);
     void cryptData(const std::string&);
     void writeData(const std::string&, const std::string&) const;
@@ -36,6 +39,8 @@ public:
     void sortString(unsigned int );
     std::string getLittleStr(unsigned int );
     void echoResult();
+    void cleanDelete();
+    void get_All_Length();
     //unsigned int mashupStr(const std::string&);
 };
 
