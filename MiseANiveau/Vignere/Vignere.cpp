@@ -33,8 +33,8 @@ void Vignere::cryptData(const std::string& key){
         else ++j;
     }
 
-    std::cerr << "cryptedData : " << cryptedData << std::endl;
-    std::cerr << "key : " << key << std::endl;
+    /*std::cerr << "cryptedData : " << cryptedData << std::endl;
+    std::cerr << "key : " << key << std::endl;*/
 }
 
 void Vignere::writeData(const std::string& filename, const std::string& filekey) const{
@@ -70,6 +70,23 @@ void Vignere::decryptWithKey(bool read){
 
         if(j == key.length() - 1) j = 0;
         else ++j;
+    }
+
+    unsigned int tab[26];
+    for(unsigned int i=0; i<26; ++i)
+        tab[i] = 0;
+
+    for(unsigned int i = 0; i < cryptedData.length(); ++i){
+        for(unsigned int j = 0; j < 26; ++j){
+            if(tabText[i] == char('A'+j)){
+                tab[j] += 1;
+            }
+        }
+    }
+
+    std::cerr << " Fréquence des lettres dans le texte non crypte : " << std::endl;
+    for(unsigned int i = 0; i < 26; ++i){
+        std::cerr << char('A'+i) << " : " << tab[i] << std::endl;
     }
 
     std::cerr << "decryptedData : " << tabText << std::endl;
@@ -214,7 +231,7 @@ void Vignere::max_OccPgcd(){
     short one = 0;
 
     for(unsigned int i = nb_pgcd; i > 0; --i){
-        if(tabOfpgcd[i] > 1 && tabOfpgcd[i] <= 10){
+        if(tabOfpgcd[i] > 1 && tabOfpgcd[i] < 6){
             if(one == 0){
                 keyLen = tabOfpgcd[i];
                 one = 1;
@@ -224,8 +241,38 @@ void Vignere::max_OccPgcd(){
     }
 }
 
+void Vignere::findKey(){
+    std::string* tab = new std::string[keyLen];
+    tabTmpAlphabet = new unsigned int[26];
+
+    //unsigned int cpt = 0;
+    for(unsigned int i=0; i<cryptedData.length(); ++i){
+        for(unsigned int j=0; j<keyLen; ++j){
+            tab[j] += cryptedData[i+j];
+        }
+    }
+
+    for(unsigned int j=0; j<keyLen; ++j){
+        for(unsigned int i=0; i<cryptedData.length()/keyLen; ++i){
+            for(unsigned int k=0; k<26; ++k){
+                if( char('A'+k) == tab[j][i] ){
+                    tabTmpAlphabet[k]+=1;
+                }
+            }
+        }
+    }
+
+    delete[] tab;
+}
+
 void Vignere::bruteForce(){
     std::cerr << std::endl << "Démarrage du bruteForce ..." << std::endl;
+    finalStr = "";
+
+    for(unsigned int i=0; i<keyLen; ++i){
+        finalStr += "Z";
+    }
+
     while(!megaBool){
 		static unsigned int strLen = keyLen;
 		GenerateStr(strLen, "");
@@ -239,30 +286,34 @@ void Vignere::GenerateStr(unsigned int length, std::string str){
 		return;
 	}
 
-    int value;
+    int value = 0;
     unsigned int j = 0;
-    tabText = "";
+
 
     tabTmpAlphabet = new unsigned int[26];
-    for(unsigned int i = 0; i < 26; ++i){
-        tabTmpAlphabet[i] = 0;
-    }
     double tabFloat[26];
 
-	for(unsigned int i = 0; i < 26; ++i){
-		std::string tmpStr = str + tabAlphabet[i];
-        key = tmpStr;
+    for(unsigned int i=0; i<26; ++i){
+        tabFloat[i] = 0.00;
+    }
 
+	for(unsigned int i = 0; i < 26; ++i){
+        tabText = "";
+
+		std::string tmpStr = str + tabAlphabet[i];
         for(unsigned int i = 0; i < cryptedData.length(); ++i){
-            value = int(cryptedData[i] - (key[j] - 'A'));
+            value = int(cryptedData[i] - (tmpStr[j] - 'A'));
 
             if(value < int('A')) value = int('Z') -  (int('A') - value);
 
             tabText += value;
 
-            if(j == key.length() - 1) j = 0;
+            if(j == tmpStr.length() - 1) j = 0;
             else ++j;
         }
+
+        for(unsigned int i = 0; i < 26; ++i)
+            tabTmpAlphabet[i] = 0;
 
         for(unsigned int i = 0; i < cryptedData.length(); ++i){
             for(unsigned int j = 0; j < 26; ++j){
@@ -273,50 +324,18 @@ void Vignere::GenerateStr(unsigned int length, std::string str){
         }
 
         for(unsigned int i=0; i < 26; ++i){
-            tabFloat[i] = double(tabTmpAlphabet[i]) / double(cryptedData.length());
-            //std::cerr << tabFloat[i] << std::endl;
+            tabFloat[i] = (double(tabTmpAlphabet[i]) * 100) / double(cryptedData.length());
         }
 
-        //double tmp;
-        bool done = false;
-        unsigned int cpt = 0;
-        double tmp;
-        unsigned int tmpU;
-        //unsigned indexTwo;
-
-        unsigned int tabIndex[26] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
-
-        while(!done){
-            cpt = 0;
-            for(unsigned long int i=0; i<26; ++i){
-                if(tabFloat[i] > tabFloat[i+1]){
-
-                    tmp = tabFloat[i];
-                    tabFloat[i] = tabFloat[i+1];
-                    tabFloat[i+1] = tmp;
-
-                    tmpU = tabIndex[i];
-                    tabIndex[i] = tabIndex[i+1];
-                    tabIndex[i+1] = tmpU;
-
-                    ++cpt;
-                }
-            }
-            if(cpt == 0) done = true;
-        }
-
-        for(unsigned int i=0; i<26; ++i){
-            std::cerr << tabIndex[i] << ".";
-        }
-        std::cerr << std::endl;
-
-        if( (tabIndex[25] == 5 && tabIndex[24] == 20 && tabIndex[23] == 9) || (tabIndex[24] == 5 && tabIndex[25] == 9 && tabIndex[23] == 20) ){
-            std::cerr << "Clé : " << key << std::endl;
+        if(!megaBool && tabFloat[4] > 10.0 && tabFloat[8] > 10.0 && tabFloat[19] > 8.00 && tabFloat[20] > 8.00){
+            std::cerr << " Clé probable : " << tmpStr << std::endl;
             megaBool = true;
-            return;
         }
 
-        //megaBool = true;
+        if(tmpStr == finalStr){
+            megaBool = true;
+            std::cerr << "bruteForce terminé, la clé " << finalStr <<" a ete atteinte." << std::endl;
+        }
 
         if(!megaBool) GenerateStr(length-1, tmpStr);
 	}

@@ -31,6 +31,7 @@ public:
     unsigned long int nb_pgcd;
 
     bool megaBool;
+    std::string finalStr;
 
     unsigned int keyLen;
     unsigned int* tabTmpAlphabet;
@@ -64,6 +65,7 @@ public:
     void max_OccPgcd();
     void bruteForce();
     void GenerateStr(unsigned int, std::string );
+    void findKey();
 };
 
 #endif
