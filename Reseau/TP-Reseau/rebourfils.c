@@ -1,4 +1,4 @@
-/** HECKEL Thibault - TP1 Réseaux & Com. UNIX - L3 Informatique site de Luminy | Septembre 2016
+/** HECKEL Thibault - TP1 Réseau & Com. UNIX - L3 Informatique site de Luminy | Septembre 2016
 * Partie II - 1) 2) 3)
 *
 * Note pour le correcteur :
