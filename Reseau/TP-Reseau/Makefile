@@ -11,13 +11,13 @@ LIBS   =
 # Si une ligne est pleine, rajouter '\' en fin de ligne et passer a la suivante.
 
 # pour compiler sans bor-util.c
-EXECS = rebourfils
+EXECS =
 
 # pour compiler avec bor-util.c
-EXECSUTIL =
+EXECSUTIL = triosig
 
 # pour compiler avec bor-util.c et bor-timer.c
-EXECSTIMER = 
+EXECSTIMER =
 
 
 .c.o :

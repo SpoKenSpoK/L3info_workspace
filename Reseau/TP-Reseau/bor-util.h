@@ -100,4 +100,3 @@ ssize_t bor_sendto_in_str (int soc, const void *buf, const struct sockaddr_in *s
 #endif
 
 #endif /* BOR_UTIL__H */
-

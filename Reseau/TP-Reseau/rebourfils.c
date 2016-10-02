@@ -6,13 +6,7 @@
 *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
-// include .h
+// include .h dans le quel sont contenus tous les include nécessaires.
 #include "bor-util.h"
 
 /**
@@ -29,7 +23,9 @@ unsigned int properScanf(){
     unsigned int output = 0;
 
 	printf("Enter a number : \n");
+    // Récupération des caractères entrés par l'utilisateur.
     fgets(keyInput, sizeof(keyInput), stdin);
+    // Transformation de la chaîne de caractère entrée en un entier non-signé.
     output = strtoul(keyInput, &end, 12);
 
     return output;
@@ -48,6 +44,7 @@ void bombTimer(unsigned int starter){
         sleep(1);
     }
 }
+
 
 /**
 * \param : un entier non-signé représentant le nombre de processus enfants voulus.
@@ -69,7 +66,7 @@ void makeChildren(unsigned int nbChild){
             break;
 
             case 0:
-                //printf("Child (%d): %d\n", i + 1, getpid()); // Affichage du fils créé.
+                //printf("Child (%d): %d - father : %d\n", i + 1, getpid(), getppid()); // Affichage du fils créé.
                 bombTimer(10);
                 exit(0);
             break;
@@ -81,8 +78,6 @@ void makeChildren(unsigned int nbChild){
 //! MAIN !//
 int main(){
     unsigned int nbChild;   // Nombre de processus enfant voulus.
-    pid_t waitPid;          // pid qui est actuellement "attendu"
-    int waitStatus = 0;     // status qui est attendu
 
     /*
         Boucle Tant Que principale. Celle-ci s'exécute jusqu'à qu'un '0' soit entré par l'utilisateur.
@@ -95,8 +90,7 @@ int main(){
     }while(nbChild != 0);
 
     // Tant qu'il y a un pid "attendu", nous continuons d'attendre d'autres potentiels processus.
-    // L'affection waitPid = wait(&waitStatus) est effectué dans le test de la boucle while.
-    while ((waitPid = wait(&waitStatus)) > 0);
+    while(wait(NULL) > 0);
 
     // Une fois que tous les processus ont été attendu, affichage confirmant la fin du processus père.
     printf("Fin de tous les fils detectes\n");
