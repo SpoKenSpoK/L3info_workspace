@@ -18,6 +18,11 @@ int main(){
     bor_write_str(pipefd[1], buffer);
     close(pipefd[1]);
 
+    // Lecture de 3 caractères
+    bor_read_str(pipefd[0], buffer, 3+1);
+    bor_write_str(1, buffer);
+    printf("\n");
+
     pid_t pid = fork();
     if(pid < 0){ // Erreur
         perror("Fork failed");
@@ -26,6 +31,7 @@ int main(){
     }
 
     if(pid == 0){ // Fils
+        // Lecture de 7 caractères
         bor_read_str(pipefd[0], buffer, 7+1);
         bor_write_str(1, buffer);
         printf("\n");
@@ -34,9 +40,6 @@ int main(){
     }
 
     // Père
-    bor_read_str(pipefd[0], buffer, 3+1);
-    bor_write_str(1, buffer);
-    printf("\n");
     close(pipefd[0]);
     exit(0);
 }
