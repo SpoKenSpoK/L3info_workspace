@@ -14,7 +14,7 @@ LIBS   =
 EXECS =
 
 # pour compiler avec bor-util.c
-EXECSUTIL = debitntub
+EXECSUTIL = tradu2tub
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER =
