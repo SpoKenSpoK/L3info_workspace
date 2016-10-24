@@ -1,19 +1,26 @@
 #include "bor-util.h"
 // Communication UDP :
 
+char* buffer;
 const char* path;
 int soc ;
 
+void cleanEnd(){
+    close(soc);
+    unlink(path);
+    free(buffer);
+}
+
 void handleSIGINT(int sig){
     if(sig == SIGINT){
-        close(soc);
-        unlink(path);
+        cleanEnd();
         exit(-1);
     }
 }
 
 int main(int argc, char* argv[]){
     if(argc != 2){ perror("erreur au niveau des arguments\n"); return -1; }
+
     bor_signal(SIGINT, handleSIGINT, SA_RESTART);
 
     path = argv[1];
@@ -25,15 +32,13 @@ int main(int argc, char* argv[]){
     time_t timer;
 
     soc = bor_create_socket_un(SOCK_DGRAM, path, &sa);
+    buffer = malloc( sizeof(*buffer) * bufsize );
 
     while(1){
-        char* buffer = malloc( sizeof(*buffer) * bufsize );
-
         // Réception depuis le client :
         msg_from = bor_recvfrom_un_str(soc, buffer, bufsize, &sb);
         if (msg_from < 0) {
-            close(soc);
-            unlink(path);
+            cleanEnd();
             perror("Error : recvfrom\n");
             exit(-1);
         }
@@ -46,18 +51,14 @@ int main(int argc, char* argv[]){
         // Envoie vers le client :
         msg_to = bor_sendto_un_str(soc, buffer, &sb);
         if (msg_to < 0) {
-            close(soc);
-            unlink(path);
+            cleanEnd();
             perror("Error : sendto\n");
             exit(-1);
         }
-        printf("Message envoye\n");
-
-        free(buffer);
+        printf("Message envoye %s\n",buffer);
     }
 
-    close(soc);
-    unlink(path);
+    cleanEnd();
 
     return 0;
 }
