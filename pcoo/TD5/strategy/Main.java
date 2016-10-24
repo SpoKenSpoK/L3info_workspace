@@ -29,8 +29,8 @@ public class Main {
             }
 
             On peut maintenant écrire :
-            Formula f = Sum.variatic(x, y, z);
-            Formula g = Sum.variatic(x, f);
+            Formula f = Sum.variadic(x, y, z);
+            Formula g = Sum.variadic(x, f);
 
             => invocation de la factory method
         */
