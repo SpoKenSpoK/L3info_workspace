@@ -1,0 +1,12 @@
+#!/bin/bash
+
+./nhello-cli /tmp/clione /tmp/serv
+./nhello-cli /tmp/clitwo /tmp/serv
+./nhello-cli /tmp/clithree /tmp/serv
+./nhello-cli /tmp/clifour /tmp/serv
+./nhello-cli /tmp/clifive /tmp/serv
+./nhello-cli /tmp/clisix /tmp/serv
+./nhello-cli /tmp/cliseven /tmp/serv
+./nhello-cli /tmp/cliheight /tmp/serv
+./nhello-cli /tmp/clinine /tmp/serv
+./nhello-cli /tmp/cliten /tmp/serv
