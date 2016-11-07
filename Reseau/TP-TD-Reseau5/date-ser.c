@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
         msg_from = bor_recvfrom_un_str(soc, buffer, bufsize, &sb);
         if (msg_from < 0) {
             cleanEnd();
-            perror("Error : recvfrom\n");
+            perror("Error : recvfrom\n");développement
             exit(-1);
         }
         printf("Message recu: %s\n", buffer);
