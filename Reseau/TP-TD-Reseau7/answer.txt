@@ -1,0 +1,15 @@
+HTTP/1.1 400 Bad Request
+Server: nginx/1.6.2
+Date: Mon, 14 Nov 2016 13:51:53 GMT
+Content-Type: text/html
+Content-Length: 270
+Connection: close
+
+<html>
+<head><title>400 The plain HTTP request was sent to HTTPS port</title></head>
+<body bgcolor="white">
+<center><h1>400 Bad Request</h1></center>
+<center>The plain HTTP request was sent to HTTPS port</center>
+<hr><center>nginx/1.6.2</center>
+</body>
+</html>
