@@ -1,6 +1,14 @@
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 public class Circle implements Shape {
     private double x;
     private double y;
+
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getRadius() { return radius; }
+
     private double radius;
 
     public Circle(double x, double y, double radius){
@@ -10,7 +18,7 @@ public class Circle implements Shape {
     }
 
     public void paint(GraphicsContext gc){
-        gc.setFill(Color.rgb(0,255,0,0.2))
+        gc.setFill(Color.rgb(0,255,0,0.2));
 
         double left = x - radius;
         double top = y - radius;
@@ -21,11 +29,16 @@ public class Circle implements Shape {
     }
 
     public boolean contains(double dx, double dy){
-        //return  ( Math.pow(dx-x) + Math.pow(dy-y) ) <= Math.pow(radius);
         return Math.hypot( (dx - x), (dy - y) ) <= radius;
     }
 
     public void translate(double dx, double dy){
         x+=dx; y+=dy;
     }
+
+    public <R> R accept(ShapeVisitor <R> v) {
+        return v.visit(this);
+    }
+
+
 }
