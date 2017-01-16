@@ -9,7 +9,7 @@ public class RectangleSerialiser implements ShapeSerializer<Rectangle> {
 
     @Override
     public String serialize(Rectangle shape) {
-        return String.format("%s %.1f %.1f %.1f %.1f", code(), shape.getX(), shape.getY(), shape.getWidth(), shape.getHeight());
+        return code() + " " + shape.getX() + " " + shape.getY() + " " + shape.getWidth() + " " + shape.getHeight();
     }
 
     @Override
@@ -17,12 +17,8 @@ public class RectangleSerialiser implements ShapeSerializer<Rectangle> {
         try(Scanner scanner = new Scanner(s)) {
             String code = scanner.next();
             assert code.equals(code());
-            double x = scanner.nextDouble();
-            double y = scanner.nextDouble();
-            double width = scanner.nextDouble();
-            double height = scanner.nextDouble();
-
-            return new Rectangle(x, y, width, height);
+            String[] coords = s.split(" ");
+            return new Rectangle(Double.valueOf(coords[1]), Double.valueOf(coords[2]), Double.valueOf(coords[3]), Double.valueOf(coords[4]));
         }
     }
 

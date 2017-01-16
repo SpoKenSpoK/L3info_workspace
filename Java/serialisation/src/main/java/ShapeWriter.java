@@ -17,7 +17,10 @@ public class ShapeWriter implements ShapeVisitor<String> {
         for(Shape shape:shapes){
             String string = shape.accept(instance);
             writer.println(string);
+            System.out.println(string);
         }
+
+        writer.close();
     }
 
     public static ShapeWriter instance = new ShapeWriter();
