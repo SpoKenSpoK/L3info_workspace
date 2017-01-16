@@ -154,6 +154,9 @@ void nom_token( int token, char *nom, char *valeur ) {
   }
 }
 
+
+
+reorieiroe
 /*******************************************************************************
  * Fonction auxiliaire appelée par le compilo en mode -l, pour tester l'analyseur
  * lexical et, étant donné un programme en entrée, afficher la liste des tokens.
