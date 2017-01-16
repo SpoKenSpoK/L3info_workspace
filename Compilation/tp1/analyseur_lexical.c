@@ -11,15 +11,31 @@
 #define is_min(c)(('a' <= (c)) && ((c) <= 'z'))
 #define is_alpha(c)(is_maj(c) || is_min(c) || (c) == '_' || (c) == '$')
 #define is_alphanum(c)(is_num((c)) || is_alpha((c)))
- 
+
 extern FILE *yyin;
 
 char *tableMotsClefs[] = {
-  "si", 
+  "si",
+  "alors",
+  "sinon",
+  "tantque",
+  "faire",
+  "entier",
+  "lire",
+  "ecrire",
+  "retour"
 };
 
-int codeMotClefs[] = { 
-  SI, 
+int codeMotClefs[] = {
+  SI,
+  ALORS,
+  SINON,
+  TANTQUE,
+  FAIRE,
+  ENTIER,
+  LIRE,
+  ECRIRE,
+  RETOUR
 };
 
 char yytext[YYTEXT_MAX];
@@ -29,11 +45,11 @@ int nbMotsClefs = 9;
 int nb_ligne = 1;
 
 /*******************************************************************************
- * Fonction qui ignore les espaces et commentaires. 
- * Renvoie -1 si arrivé à la fin du fichier, 0 si tout va bien 
+ * Fonction qui ignore les espaces et commentaires.
+ * Renvoie -1 si arrivé à la fin du fichier, 0 si tout va bien
  ******************************************************************************/
 int mangeEspaces()
-{ 
+{
   char c = fgetc(yyin);
   int comment = 0;
   while( comment || (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) ) {
@@ -44,17 +60,17 @@ int mangeEspaces()
       nb_ligne++;
       comment = 0;
     }
-    c = fgetc(yyin);    
+    c = fgetc(yyin);
   }
   if ( feof(yyin) ) {
     return -1;
-  }    
+  }
   ungetc(c, yyin);
   return 0;
 }
 
 /*******************************************************************************
- * Lit un caractère et le stocke dans le buffer yytext 
+ * Lit un caractère et le stocke dans le buffer yytext
  ******************************************************************************/
 char lireCar(void)
 {
@@ -64,7 +80,7 @@ char lireCar(void)
 }
 
 /*******************************************************************************
- * Remet le dernier caractère lu au buffer clavier et enlève du buffer yytext 
+ * Remet le dernier caractère lu au buffer clavier et enlève du buffer yytext
  ******************************************************************************/
 void delireCar()
 {
@@ -75,9 +91,9 @@ void delireCar()
 }
 /*******************************************************************************
  * Fonction principale de l'analyseur lexical, lit les caractères de yyin et
- * renvoie les tokens sous forme d'entier. Le code de chaque unité est défini 
- * dans symboles.h sinon (mot clé, idententifiant, etc.). Pour les tokens de 
- * type ID_FCT, ID_VAR et NOMBRE la valeur du token est dans yytext, visible 
+ * renvoie les tokens sous forme d'entier. Le code de chaque unité est défini
+ * dans symboles.h sinon (mot clé, idententifiant, etc.). Pour les tokens de
+ * type ID_FCT, ID_VAR et NOMBRE la valeur du token est dans yytext, visible
  * dans l'analyseur syntaxique.
  ******************************************************************************/
 int yylex(void)
@@ -89,12 +105,12 @@ int yylex(void)
 }
 
 /*******************************************************************************
- * Fonction auxiliaire appelée par l'analyseur syntaxique tout simplement pour 
- * afficher des messages d'erreur et l'arbre XML 
+ * Fonction auxiliaire appelée par l'analyseur syntaxique tout simplement pour
+ * afficher des messages d'erreur et l'arbre XML
  ******************************************************************************/
 void nom_token( int token, char *nom, char *valeur ) {
   int i;
-  
+
   strcpy( nom, "symbole" );
   if(token == POINT_VIRGULE) strcpy( valeur, "POINT_VIRGULE");
   else if(token == PLUS) strcpy(valeur, "PLUS");
@@ -116,16 +132,16 @@ void nom_token( int token, char *nom, char *valeur ) {
   else if(token == VIRGULE) strcpy(valeur, "VIRGULE");
 
   else if( token == ID_VAR ) {
-    strcpy( nom, "id_variable" );  
-    strcpy( valeur, yytext );        
+    strcpy( nom, "id_variable" );
+    strcpy( valeur, yytext );
   }
   else if( token == ID_FCT ) {
-    strcpy( nom, "id_fonction" );    
-    strcpy( valeur, yytext );    
+    strcpy( nom, "id_fonction" );
+    strcpy( valeur, yytext );
   }
   else if( token == NOMBRE ) {
     strcpy( nom, "nombre" );
-    strcpy( valeur, yytext ); 
+    strcpy( valeur, yytext );
   }
   else {
     strcpy( nom, "mot_clef" );
@@ -135,8 +151,9 @@ void nom_token( int token, char *nom, char *valeur ) {
         break;
       }
     }
-  }  
+  }
 }
+
 /*******************************************************************************
  * Fonction auxiliaire appelée par le compilo en mode -l, pour tester l'analyseur
  * lexical et, étant donné un programme en entrée, afficher la liste des tokens.
@@ -145,9 +162,9 @@ void nom_token( int token, char *nom, char *valeur ) {
 void test_yylex_internal(FILE *yyin) {
   int uniteCourante;
   char nom[100];
-  char valeur[100];  
+  char valeur[100];
   do {
-    uniteCourante = yylex();  
+    uniteCourante = yylex();
     nom_token( uniteCourante, nom, valeur );
     printf("%s\t%s\t%s\n", yytext, nom, valeur);
   } while (uniteCourante != FIN);
