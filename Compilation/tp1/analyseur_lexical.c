@@ -14,33 +14,75 @@
 
 extern FILE *yyin;
 
-char *tableMotsClefs[] = {
-  "si",
-  "alors",
-  "sinon",
-  "tantque",
-  "faire",
-  "entier",
-  "lire",
-  "ecrire",
-  "retour"
+char* tableMotsClefs[] = {
+    "si",
+    "alors",
+    "sinon",
+    "tantque",
+    "faire",
+    "entier",
+    "lire",
+    "ecrire",
+    "retour"
 };
 
 int codeMotClefs[] = {
-  SI,
-  ALORS,
-  SINON,
-  TANTQUE,
-  FAIRE,
-  ENTIER,
-  LIRE,
-  ECRIRE,
-  RETOUR
+    SI,
+    ALORS,
+    SINON,
+    TANTQUE,
+    FAIRE,
+    ENTIER,
+    LIRE,
+    ECRIRE,
+    RETOUR
+};
+
+char* tableSymboles[] = {
+    "+",
+    "-",
+    "*",
+    "/",
+    ",",
+    ";",
+    "(",
+    ")",
+    "{",
+    "}",
+    "[",
+    "]",
+    "=",
+    "<",
+    "&",
+    "|",
+    "!"
+};
+
+int codeSymboles[] = {
+    PLUS,
+    MOINS,
+    FOIS,
+    DIVISE,
+    VIRGULE,
+    POINT_VIRGULE,
+    PARENTHESE_OUVRANTE,
+    PARENTHESE_FERMANTE,
+    ACCOLADE_OUVRANTE,
+    ACCOLADE_FERMANTE,
+    CROCHET_OUVRANT,
+    CROCHET_FERMANT,
+    EGAL,
+    INFERIEUR,
+    ET,
+    OU,
+    NON
 };
 
 char yytext[YYTEXT_MAX];
 int yyleng;
 int nbMotsClefs = 9;
+int nbSymboles = 17;
+
 /* Compter les lignes pour afficher les messages d'erreur avec numero ligne */
 int nb_ligne = 1;
 
@@ -48,25 +90,27 @@ int nb_ligne = 1;
  * Fonction qui ignore les espaces et commentaires.
  * Renvoie -1 si arrivé à la fin du fichier, 0 si tout va bien
  ******************************************************************************/
-int mangeEspaces()
-{
-  char c = fgetc(yyin);
-  int comment = 0;
-  while( comment || (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) ) {
-    if( c == '#' ) {
-        comment = 1;
+int mangeEspaces(){
+    char c = fgetc(yyin);
+    int comment = 0;
+
+    while( comment || (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) ) {
+        if( c == '#' ) {
+            comment = 1;
+        }
+        if( c == '\n' ) {
+          nb_ligne++;
+          comment = 0;
+        }
+        c = fgetc(yyin);
     }
-    if( c == '\n' ) {
-      nb_ligne++;
-      comment = 0;
+
+    if ( feof(yyin) ) {
+        return -1;
     }
-    c = fgetc(yyin);
-  }
-  if ( feof(yyin) ) {
-    return -1;
-  }
-  ungetc(c, yyin);
-  return 0;
+
+    ungetc(c, yyin);
+    return 0;
 }
 
 /*******************************************************************************
@@ -74,9 +118,9 @@ int mangeEspaces()
  ******************************************************************************/
 char lireCar(void)
 {
-  yytext[yyleng++] = fgetc(yyin);
-  yytext[yyleng] = '\0';
-  return yytext[yyleng - 1];
+    yytext[yyleng++] = fgetc(yyin);
+    yytext[yyleng] = '\0';
+    return yytext[yyleng - 1];
 }
 
 /*******************************************************************************
@@ -84,10 +128,10 @@ char lireCar(void)
  ******************************************************************************/
 void delireCar()
 {
-  char c;
-  c = yytext[yyleng - 1];
-  yytext[--yyleng] = '\0';
-  ungetc(c, yyin);
+    char c;
+    c = yytext[yyleng - 1];
+    yytext[--yyleng] = '\0';
+    ungetc(c, yyin);
 }
 /*******************************************************************************
  * Fonction principale de l'analyseur lexical, lit les caractères de yyin et
@@ -98,10 +142,65 @@ void delireCar()
  ******************************************************************************/
 int yylex(void)
 {
-  char c;
-  int i;
-  yytext[yyleng = 0] = '\0';
-  // COMPLÉTER
+
+    char c;
+    //int i;
+    yytext[yyleng = 0] = '\0';
+
+    int varFound = 0;
+    int foncFound = 0;
+    int numberFound = 0;
+
+    for(;;){
+        // Evite les espaces, commentaires, saut de ligne - test la fin de fichier
+        if( mangeEspaces() < 0 ) return FIN;
+
+        c = lireCar();
+
+        // Test sur l'alpha du caractère | savoir si l'on part sur une fonction / variable / nombre
+        if( is_alphanum(c) ){
+            if( is_alpha(c) ){
+                if( strcmp(yytext,"$") == 0 ) varFound = 1;
+                else foncFound = 1;
+            }
+            else numberFound = 1;
+        }
+
+        // Nombre
+        else if( numberFound == 1 ){
+            delireCar();
+            numberFound = 0;
+            return NOMBRE;
+        }
+        // Variable
+        else if( varFound == 1 ){
+            delireCar();
+            varFound = 0;
+            return ID_VAR;
+        }
+        // Fonction
+        else if( foncFound == 1 ){
+            delireCar();
+            foncFound = 0;
+            return ID_FCT;
+        }
+
+        // Evite de tester les mots clefs car inutile si l'on est sur une variable | nombre
+        // Utile pour une fonction, car il peut s'agir d'un mot clef
+        // Futur test à implementer
+
+        if( varFound == 1 || numberFound == 1 ) continue;
+
+        // Comparaison avec les mots clefs
+        for(int i=0; i < nbMotsClefs; ++i)
+            if( strcmp(yytext, tableMotsClefs[i]) == 0 )
+                return codeMotClefs[i];
+
+        // Comparaison avec les symboles
+        for(int i=0; i < nbSymboles; ++i)
+            if( strcmp(yytext, tableSymboles[i]) == 0 )
+                return codeSymboles[i];
+    }
 }
 
 /*******************************************************************************
@@ -154,9 +253,6 @@ void nom_token( int token, char *nom, char *valeur ) {
   }
 }
 
-
-
-reorieiroe
 /*******************************************************************************
  * Fonction auxiliaire appelée par le compilo en mode -l, pour tester l'analyseur
  * lexical et, étant donné un programme en entrée, afficher la liste des tokens.
