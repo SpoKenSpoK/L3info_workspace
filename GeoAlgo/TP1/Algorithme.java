@@ -80,4 +80,21 @@ class Algorithmes {
 		}
 	}
 	
+	
+	static boolean crossProduct(Point pointOne, Point pointTwo, Point pointThree){
+		double vecOne_x;
+		double vecOne_y;
+		
+		double vecTwo_x;
+		double vecTwo_y;
+		
+		vecOne_x = pointTwo.x - pointOne.x;
+		vecOne_y = pointTwo.y - pointOne.y;
+		
+		vecTwo_x = pointTwo.x - pointThree.x;
+		vecTwo_y = pointTwo.y - pointThree.y;
+		
+		return ((vecOne_x * vecTwo_y) - (vecTwo_x * vecOne_y)) < 180;
+	}
+	
 }
