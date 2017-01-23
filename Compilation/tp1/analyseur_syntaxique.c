@@ -17,6 +17,8 @@ F -> ( E ) | nombre
 
 **/
 
+
+
 void pError(char* car){
     printf(" Erreur de syntaxe %s\n", car);
     exit(-1);
@@ -33,7 +35,6 @@ void E_one(){
     if(uniteCourante == PLUS){
         uniteCourante = yylex();
         E_zero();
-        return;
     }
 }
 
@@ -46,7 +47,6 @@ void T_one(){
     if(uniteCourante == FOIS){
         uniteCourante = yylex();
         F_zero();
-        return;
     }
 }
 
@@ -55,12 +55,11 @@ void F_zero(){
         uniteCourante = yylex();
         E_zero();
         if(uniteCourante == PARENTHESE_FERMANTE){
-            return;
+            uniteCourante = yylex();
         }
     }
     else if(uniteCourante == NOMBRE){
         uniteCourante = yylex();
-        return;
     }
     else pError("F_zero");
 }
