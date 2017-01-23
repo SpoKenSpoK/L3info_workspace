@@ -1,5 +1,5 @@
-#ifndef __LIRE_UNITE__
-#define __LIRE_UNITE__
+#ifndef __ANALYSEUR_LEXICAL__
+#define __ANALYSEUR_LEXICAL__
 
 #include "stdio.h"
 

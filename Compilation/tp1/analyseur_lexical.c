@@ -185,6 +185,13 @@ int yylex(void)
             return ID_FCT;
         }
 
+        else{
+            // Comparaison avec les symboles
+            for(int i=0; i < nbSymboles; ++i)
+                if( strcmp(yytext, tableSymboles[i]) == 0 )
+                    return codeSymboles[i];
+        }
+
         // Evite de tester les mots clefs car inutile si l'on est sur une variable | nombre
         // Utile pour une fonction, car il peut s'agir d'un mot clef
         // Futur test à implementer
@@ -196,10 +203,6 @@ int yylex(void)
             if( strcmp(yytext, tableMotsClefs[i]) == 0 )
                 return codeMotClefs[i];
 
-        // Comparaison avec les symboles
-        for(int i=0; i < nbSymboles; ++i)
-            if( strcmp(yytext, tableSymboles[i]) == 0 )
-                return codeSymboles[i];
     }
 }
 
