@@ -7,65 +7,102 @@
 #include "util.h"
 
 
-/**
+int uniteCourante;
 
-E -> T E'
-E' -> + E | e
-T -> F T'
-T' -> x F | e
-F -> ( E ) | nombre
-
-**/
-
-
-
-void pError(char* car){
-    printf(" Erreur de syntaxe %s\n", car);
+void pError(char * car){
+    printf("Erreur : %s", car);
     exit(-1);
 }
 
-int uniteCourante;
-
-void E_zero(){
-    T_zero();
-    E_one();
+void E0(void){
+    E1();
+    E0_();
 }
 
-void E_one(){
-    if(uniteCourante == PLUS){
+void E0_(void){
+    if(uniteCourante == OU){
         uniteCourante = yylex();
-        E_zero();
+        E0();
     }
+    else return;
 }
 
-void T_zero(){
-    F_zero();
-    T_one();
+void E1(void){
+    E2();
+    E1_();
 }
 
-void T_one(){
-    if(uniteCourante == FOIS){
+void E1_(void){
+    if(uniteCourante == ET){
         uniteCourante = yylex();
-        F_zero();
+        E1();
     }
+    else return;
 }
 
-void F_zero(){
+void E2(void){
+    if(uniteCourante == NON){
+        uniteCourante = yylex();
+        E2();
+    }
+    else E3();
+}
+
+void E3(void){
+    E4();
+    E3_();
+}
+
+void E3_(void){
+    if(uniteCourante == EGAL || uniteCourante == INFERIEUR){
+        uniteCourante = yylex();
+        E3();
+    }
+    else return;
+}
+
+void E4(void){
+    E5();
+    E4_();
+}
+
+void E4_(void){
+    if(uniteCourante == PLUS || uniteCourante == MOINS ){
+        uniteCourante = yylex();
+        E4();
+    }
+    else return;
+}
+
+void E5(void){
+    E6();
+    E5_();
+}
+
+void E5_(void){
+    if(uniteCourante == FOIS || uniteCourante == DIVISE){
+        uniteCourante = yylex();
+        E5();
+    }
+    else return;
+}
+
+void E6(void){
     if(uniteCourante == PARENTHESE_OUVRANTE){
         uniteCourante = yylex();
-        E_zero();
+        E0();
         if(uniteCourante == PARENTHESE_FERMANTE){
             uniteCourante = yylex();
         }
     }
-    else if(uniteCourante == NOMBRE){
-        uniteCourante = yylex();
-    }
-    else pError("F_zero");
+    else if(uniteCourante == ID_VAR) return;
+    else if(uniteCourante == NOMBRE) return;
+    else if(uniteCourante == ID_FCT) return;
+    else pError("E6");
 }
 
 void test_syntaxique(FILE *yyin) {
     uniteCourante = yylex();
-    E_zero();
+    E0();
     printf("correct\n");
 }

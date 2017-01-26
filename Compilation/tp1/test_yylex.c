@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "impossible d'ouvrir le fichier %s\n", argv[1]);
     exit(1);
   }
-
+  
   //test_yylex_internal(yyin);
   test_syntaxique(yyin);
 
