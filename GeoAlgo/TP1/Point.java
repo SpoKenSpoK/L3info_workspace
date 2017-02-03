@@ -12,13 +12,14 @@ public class Point
 	{
 		this.x = x;
 		this.y = y;
+		isRight = true;
 	}
 	
 	/** Constructeur sans initialisation. */
 	public Point(){}
 	
 	/** Position "graphique" du point dans le graph **/
-	public Boolean isRight = true;
+	public Boolean isRight;
 	
 	public int number;
 }

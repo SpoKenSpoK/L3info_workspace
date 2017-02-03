@@ -88,7 +88,7 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
 	Vector<Point> points;
 	
 	/** La liste des segments affiches. */
-	Vector<Segment> segments;
+	Vector<Segment> segments; 
 	
 	/** Le numero du point selectionne. */
 	private int numSelectedPoint;
@@ -157,12 +157,16 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
 		}
 	}
 	
-	/** Affichage des segments.
-	 */
+	/** Affichage des segments. */
 	private void drawSegments(Graphics g) {
 		for (int n = 0; n < segments.size(); n++) {
 			Segment segment = segments.elementAt(n);
-			g.setColor(segmentColor);
+			
+			if(segment.diagonale == true)
+				g.setColor(Color.pink);
+			else
+				g.setColor(segmentColor);
+			
 			g.drawLine((int)segment.a.x,(int)segment.a.y,(int)segment.b.x,(int)segment.b.y);
 		}
 	}

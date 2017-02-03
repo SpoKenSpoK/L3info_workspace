@@ -7,6 +7,9 @@ public class Segment
 	/** L'extremite b. */
 	public Point b;
 	
+	/** Flag permettant de connaître le type du segment : diagonale ou non */
+	public boolean diagonale;
+	
 	/** Constructeur avec initialisation de a et b. */
 	public Segment(Point a, Point b)
 	{
