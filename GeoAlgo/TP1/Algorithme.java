@@ -146,9 +146,14 @@ class Algorithmes {
 				
 				while( pileS.size() > 1 ){
 					
+					System.out.println("START PILE");
+					for(int j=0; j < pileS.size(); ++j){
+						System.out.println(pileS.elementAt(j).number);
+					}
+					System.out.println("END PILE");
+					
 					Point tetePile = pileS.pop(); // tête de pile
 					Point tetePileAnt = pileS.pop(); // tête de pile - 1
-					
 
 					if(crossProduct( tetePileAnt, tetePile, pCourrant )){ // Produit vectoriel
 						
@@ -171,21 +176,23 @@ class Algorithmes {
 				
 			}
 		}
-		
-		
-			// Ajout des dernières diagonales
-			pileS.pop();
 			
-			System.out.println("START");
-			while(pileS.size() > 1 ){
+			if(pileS.size() > 1){
+				// Ajout des dernières diagonales
+				pileS.pop();
 				
-				System.out.print("->");
-				System.out.println(pileS.lastElement().number);
-				Segment newSeg = new Segment( finalList.lastElement(), pileS.pop() );
-				newSeg.diagonale = true;
-				segments.addElement( newSeg );
+				System.out.println("----");
+				while(pileS.size() > 1 ){
+					
+					System.out.print("->");
+					System.out.println(pileS.lastElement().number);
+					Segment newSeg = new Segment( finalList.lastElement(), pileS.pop() );
+					newSeg.diagonale = true;
+					segments.addElement( newSeg );
+				}
+			
 			}
-		
+			
 	}
 	
 }
