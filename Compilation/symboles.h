@@ -11,10 +11,10 @@
 #define _listeParam_ 5
 #define _listeInstructions_ 6
 #define _instruction_ 8
-#define _instructionAffect_ 9  
+#define _instructionAffect_ 9
 #define _instructionBloc_ 10
 #define _instructionSi_ 11
-#define _instructionTantque_ 12 
+#define _instructionTantque_ 12
 #define _instructionAppel_ 13
 #define _instructionRetour_ 14
 #define _instructionEcriture_ 15
@@ -28,7 +28,7 @@
 #define _expArith_ 23
 #define _terme_ 24
 #define _facteur_ 25
-#define _argumentsEffectifs_ 26 
+#define _argumentsEffectifs_ 26
 #define _listeExpressions_ 27
 #define _listeExpressionsBis_ 7
 #define _programme_ 28
@@ -81,5 +81,3 @@
 #define NOMBRE 28
 #define FIN 29
 #define VIRGULE 30
-
-

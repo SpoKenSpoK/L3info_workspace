@@ -11,7 +11,7 @@ void initialise_premiers(void){
 
     //PG
     premiers[_programme_][ENTIER] = 1;
-    premiers[_programme_][EPSILON] = 1;
+    premiers[_programme_][ID_FCT] = 1;
 
     //ODV
     premiers[_optDecVariables_][ENTIER] = 1;
