@@ -175,18 +175,17 @@ class Algorithmes {
                         segments.addElement(newSeg);
 
                         pileS.push(tetePileAnt);
-                        pileS.push(pCourrant);
-                        break;
                     }
                     else {
                         System.out.println(i + " : " + tetePileAnt.number + " " + tetePile.number + " " + pCourrant.number + " crossProduct NO");
 
                         pileS.push(tetePileAnt);
                         pileS.push(tetePile);
-                        pileS.push(pCourrant);
                         break;
                     }
                 }
+
+                pileS.push(pCourrant);
             }
         }
 
