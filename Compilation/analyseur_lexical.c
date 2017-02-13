@@ -163,23 +163,30 @@ int yylex(void)
                 if( strcmp(yytext,"$") == 0 ) varFound = 1;
                 else foncFound = 1;
             }
-            else numberFound = 1;
+            else
+                numberFound = 1;
+
+            if( numberFound == 1 && foncFound == 1 && varFound == 0 ){
+                delireCar();
+                numberFound = 0;
+                return NOMBRE;
+            }
         }
 
         // Nombre
-        else if( numberFound == 1 ){
+        else if( numberFound == 1){
             delireCar();
             numberFound = 0;
             return NOMBRE;
         }
         // Variable
-        else if( varFound == 1 ){
+        else if( varFound == 1){
             delireCar();
             varFound = 0;
             return ID_VAR;
         }
         // Fonction
-        else if( foncFound == 1 ){
+        else if( foncFound == 1){
             delireCar();
             foncFound = 0;
             return ID_FCT;
@@ -196,7 +203,7 @@ int yylex(void)
         // Utile pour une fonction, car il peut s'agir d'un mot clef
         // Futur test à implementer
 
-        if( varFound == 1 || numberFound == 1 ) continue;
+        //if( varFound == 1 || numberFound == 1 ) continue;
 
         // Comparaison avec les mots clefs
         for(int i=0; i < nbMotsClefs; ++i)

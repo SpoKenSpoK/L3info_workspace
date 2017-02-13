@@ -15,25 +15,21 @@ void initialise_premiers(void){
 
     //ODV
     premiers[_optDecVariables_][ENTIER] = 1;
-    premiers[_optDecVariables_][EPSILON] = 1;
 
     //LDV
     premiers[_listeDecVariables_][ENTIER] = 1;
 
     //LDVB
     premiers[_listeDecVariablesBis_][VIRGULE] = 1;
-    premiers[_listeDecVariablesBis_][EPSILON] = 1;
 
     //DV
     premiers[_declarationVariable_][ENTIER] = 1;
 
     //OTT
     premiers[_optTailleTableau_][CROCHET_OUVRANT] = 1;
-    premiers[_optTailleTableau_][EPSILON] = 1;
 
     //LDF
     premiers[_listeDecFonctions_][ID_FCT] = 1;
-    premiers[_listeDecFonctions_][EPSILON] = 1;
 
     //DF
     premiers[_declarationFonction_][ID_FCT] = 1;
@@ -43,7 +39,6 @@ void initialise_premiers(void){
 
     //OLDV
     premiers[_optListeDecVariables_][ENTIER] = 1;
-    premiers[_optListeDecVariables_][EPSILON] = 1;
 
     //I
     premiers[_instruction_][ID_VAR] = 1;
@@ -70,14 +65,12 @@ void initialise_premiers(void){
     premiers[_listeInstructions_][RETOUR] = 1;
     premiers[_listeInstructions_][ECRIRE] = 1;
     premiers[_listeInstructions_][POINT_VIRGULE] = 1;
-    premiers[_listeInstructions_][EPSILON] = 1;
 
     //ISI
     premiers[_instructionSi_][SI] = 1;
 
     //OSINON
     premiers[_optSinon_][SINON] = 1;
-    premiers[_optSinon_][EPSILON] = 1;
 
     //ITQ
     premiers[_instructionTantque_][TANTQUE] = 1;
@@ -91,6 +84,9 @@ void initialise_premiers(void){
     //IECR
     premiers[_instructionEcriture_][ECRIRE] = 1;
 
+    //IVIDE
+    premiers[_instructionVide_][POINT_VIRGULE] = 1;
+
     //EXP
     premiers[_expression_][NON] = 1;
     premiers[_expression_][PARENTHESE_OUVRANTE] = 1;
@@ -101,7 +97,6 @@ void initialise_premiers(void){
 
     //EXPB
     premiers[_expressionBis_][OU] = 1;
-    premiers[_expressionBis_][EPSILON] = 1;
 
     //CONJ
     premiers[_conjonction_][NON] = 1;
@@ -113,7 +108,6 @@ void initialise_premiers(void){
 
     //CONJB
     premiers[_conjonctionBis_][ET] = 1;
-    premiers[_conjonctionBis_][EPSILON] = 1;
 
     //COMP
     premiers[_comparaison_][NON] = 1;
@@ -126,7 +120,6 @@ void initialise_premiers(void){
     //COMPB
     premiers[_comparaisonBis_][EGAL] = 1;
     premiers[_comparaisonBis_][INFERIEUR] = 1;
-    premiers[_comparaisonBis_][EPSILON] = 1;
 
     //E
     premiers[_expArith_][NON] = 1;
@@ -139,7 +132,6 @@ void initialise_premiers(void){
     //EB
     premiers[_expArithBis_][PLUS] = 1;
     premiers[_expArithBis_][MOINS] = 1;
-    premiers[_expArithBis_][EPSILON] = 1;
 
     //T
     premiers[_terme_][NON] = 1;
@@ -152,7 +144,6 @@ void initialise_premiers(void){
     //TB
     premiers[_termeBis_][FOIS] = 1;
     premiers[_termeBis_][DIVISE] = 1;
-    premiers[_termeBis_][EPSILON] = 1;
 
     //NEG
     premiers[_negation_][NON] = 1;
@@ -174,7 +165,6 @@ void initialise_premiers(void){
 
     //OIND
     premiers[_optIndice_][CROCHET_OUVRANT] = 1;
-    premiers[_optIndice_][EPSILON] = 1;
 
     //APPF
     premiers[_appelFct_][ID_FCT] = 1;
@@ -186,11 +176,9 @@ void initialise_premiers(void){
     premiers[_listeExpressions_][ID_FCT] = 1;
     premiers[_listeExpressions_][ID_VAR] = 1;
     premiers[_listeExpressions_][LIRE] = 1;
-    premiers[_listeExpressions_][EPSILON] = 1;
 
     //LEXPB
     premiers[_listeExpressionsBis_][VIRGULE] = 1;
-    premiers[_listeExpressionsBis_][EPSILON] = 1;
 }
 
 int est_premier(int non_terminal, int terminal)

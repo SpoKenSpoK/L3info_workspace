@@ -11,7 +11,7 @@ int indent_step = 1; // set to 0 for no indentation
 /*-------------------------------------------------------------------------*/
 /* Affiche le message d'alerte donné en paramètre, avec le numéro de ligne */
 /*-------------------------------------------------------------------------*/
-void warning(char *message) {
+void warning(const char *message) {
   fprintf (stderr, "WARNING ligne %d : ", nb_ligne);
   fprintf (stderr, "%s\n", message);
 }
@@ -27,7 +27,7 @@ void erreur(char *message) {
 
 /*-------------------------------------------------------------------------
  * Affiche le message d'alerte donné en paramètre, avec le numéro de ligne.
- * Le message d'alerte peut contenir un %s variable, qui sera donné en 
+ * Le message d'alerte peut contenir un %s variable, qui sera donné en
  * argument s
  -------------------------------------------------------------------------*/
 void warning_1s(char *message, char *s) {
@@ -38,7 +38,7 @@ void warning_1s(char *message, char *s) {
 
 /*-------------------------------------------------------------------------
  * Affiche le message d'erreur donné en paramètre, avec le numéro de ligne.
- * Le message d'erreur peut contenir un %s variable, qui sera donné en 
+ * Le message d'erreur peut contenir un %s variable, qui sera donné en
  * argument s
  -------------------------------------------------------------------------*/
 void erreur_1s(char *message, char *s) {
@@ -61,7 +61,7 @@ void indent() {
     int i;
     for( i = 0; i < indent_xml; i++ ) {
       printf( "  " );
-    }    
+    }
 }
 /*-------------------------------------------------------------------------*/
 void affiche_balise_ouvrante(const char *fct_, int trace_xml) {
@@ -69,7 +69,7 @@ void affiche_balise_ouvrante(const char *fct_, int trace_xml) {
     indent();
     indent_xml += indent_step ;
 	  fprintf (stdout, "<%s>\n", fct_);
-	}  
+	}
 }
 
 /*-------------------------------------------------------------------------*/
