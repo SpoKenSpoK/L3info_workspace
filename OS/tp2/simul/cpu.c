@@ -68,13 +68,13 @@ PSW cpu_CMP(PSW m) {
 /* instruction de IFGT */
 PSW cpu_IFGT(PSW m) {
 	if( m.AC > 0 ) m.PC = m.RI.ARG;
+	else m.PC += 1;
 	return m;
 }
 
 /* instruction NOP */
 PSW cpu_NOP(PSW m) {
 	m.PC += 1;
-	printf(" -- NOP -- \n");
 	return m;
 }
 
@@ -88,6 +88,13 @@ PSW cpu_JUMP(PSW m) {
 PSW cpu_HALT(PSW m) {
 	printf("-- HALT --\n");
 	exit(0);
+}
+
+/* instruction SYSC */
+PSW cpu_SYSC(PSW m) {
+	m.IN = INT_SYSC;
+	m.PC += 1;
+	return m;
 }
 
 
@@ -119,6 +126,7 @@ PSW cpu(PSW m) {
 			case INST_JUMP: m = cpu_JUMP(m); break;
 			case INST_NOP: m = cpu_NOP(m); break;
 			case INST_HALT: m = cpu_HALT(m); break;
+			case INST_SYSC: return cpu_SYSC(m);
 
 			default:
 				/*** interruption instruction inconnue ***/
