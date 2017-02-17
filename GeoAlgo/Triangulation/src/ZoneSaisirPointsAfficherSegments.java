@@ -8,12 +8,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 /** La classe ZoneSaisirPointsAfficherSegments. */
 public class ZoneSaisirPointsAfficherSegments extends JPanel  {
+
+    public static boolean enveloppeConvexe = false;
 
     /** Creation de la zone d'affichage. */
     public ZoneSaisirPointsAfficherSegments()
@@ -31,6 +31,24 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
         // Creation du bouton Effacer
         JButton effacer = new JButton("Effacer");
+        JButton envConvexe = new JButton("Enveloppe Conv.");
+        JButton rand = new JButton("Rand");
+
+
+        // Action du bouton Rand
+        envConvexe.addActionListener( new ActionListener(){
+                                    public void actionPerformed(ActionEvent evt) {
+                                        // Suppression des points et des segments
+                                        canvas.points.removeAllElements();
+                                        canvas.segments.removeAllElements();
+
+                                        enveloppeConvexe = true;
+
+                                        canvas.calculer();
+                                        canvas.repaint();
+                                    }
+                                }
+        );
 
         // Action du bouton Effacer
         effacer.addActionListener( new ActionListener(){
@@ -38,13 +56,15 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
                                            // Suppression des points et des segments
                                            canvas.points.removeAllElements();
                                            canvas.segments.removeAllElements();
+
+                                           enveloppeConvexe = false;
+
                                            canvas.repaint();
                                        }
                                    }
         );
 
-        // Creation du bouton Rand
-        JButton rand = new JButton("Rand");
+
 
         // Action du bouton Rand
         rand.addActionListener( new ActionListener(){
@@ -52,6 +72,9 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
                                         // Suppression des points et des segments
                                         canvas.points.removeAllElements();
                                         canvas.segments.removeAllElements();
+
+                                        enveloppeConvexe = false;
+
                                         int n = Integer.parseInt(textNombrePoint.getText());
                                         for (int i = 0; i < n; i++)
                                         {
@@ -70,6 +93,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
         // Ajout des boutons au panel panelBoutons
         panelBoutons.add(effacer);
+        panelBoutons.add(envConvexe);
         panelBoutons.add(rand);
         panelBoutons.add(textNombrePoint);
         setLayout(new BorderLayout());
@@ -150,10 +174,12 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
             g.fillOval((int)(p.x - POINT_SIZE), (int)(p.y - POINT_SIZE), 2 * POINT_SIZE + 1, 2 * POINT_SIZE + 1);
             g.drawOval((int)(p.x - 2 * POINT_SIZE), (int)(p.y - 2 * POINT_SIZE), 2 * 2 * POINT_SIZE,	2 * 2 * POINT_SIZE);
 
-            if(p.isRight) g.drawString("D", (int)p.x + 10, (int)p.y + 10);
-            else g.drawString("G", (int)p.x - 20, (int)p.y + 10);
+            if( !ZoneSaisirPointsAfficherSegments.enveloppeConvexe ){
+                if(p.isRight) g.drawString("D", (int)p.x + 10, (int)p.y + 10);
+                else g.drawString("G", (int)p.x - 20, (int)p.y + 10);
 
-            g.drawString(Integer.toString(p.number), (int)p.x + 30, (int)p.y + 10);
+                g.drawString(Integer.toString(p.number), (int)p.x + 30, (int)p.y + 10);
+            }
         }
     }
 
@@ -240,7 +266,9 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
     /** Lance l'algorithme sur l'ensemble de points. */
     public void calculer()
     {
-        segments = Algorithmes.algorithme1(points);
+        if( !ZoneSaisirPointsAfficherSegments.enveloppeConvexe )
+            segments = Algorithmes.algorithme1(points);
+        
     }
 
     public void mouseReleased(MouseEvent evt) {}

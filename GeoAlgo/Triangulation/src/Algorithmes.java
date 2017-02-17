@@ -40,6 +40,73 @@ class Algorithmes {
         return segments;
     }
 
+
+    static Vector<Segment> algoIncremental(Vector<Point> points){
+        Vector<Segment> segments = new Vector<>();
+
+
+
+        /*
+            Input = a set S of n points
+            Assume that there are at least 2 points in the input set S of points
+            QuickHull (S)
+            {
+               // Find convex hull from the set S of n points
+               Convex Hull := {}
+               Find left and right most points, say A & B, and add A & B to convex hull
+               Segment AB divides the remaining (n-2) points into 2 groups S1 and S2
+                   where S1 are points in S that are on the right side of the oriented line from A to B,
+                   and S2 are points in S that are on the right side of the oriented line from B to A
+               FindHull (S1, A, B)
+               FindHull (S2, B, A)
+           }
+           FindHull (Sk, P, Q)
+           {
+               // Find points on convex hull from the set Sk of points
+               // that are on the right side of the oriented line from P to Q
+               If Sk has no point, then return.
+               From the given set of points in Sk, find farthest point, say C, from segment PQ
+               Add point C to convex hull at the location between P and Q
+               Three points P, Q, and C partition the remaining points of Sk into 3 subsets: S0, S1, and S2
+                   where S0 are points inside triangle PCQ, S1 are points on the right side of the oriented
+                   line from  P to C, and S2 are points on the right side of the oriented line from C to Q.
+               FindHull(S1, P, C)
+               FindHull(S2, C, Q)
+           }
+           Output = convex hull
+         */
+
+        return segments;
+    }
+
+    static int theLeftPoint(Vector<Point> listePoints){
+        int index = 0;
+        double leftPoint = listePoints.elementAt(0).x;
+
+        for(int i=1; i < listePoints.size(); ++i){
+            if( listePoints.elementAt(i).x < leftPoint ){
+                index = i;
+                leftPoint = listePoints.elementAt(i).x;
+            }
+        }
+
+        return index;
+    }
+
+    static int theRightPoint(Vector<Point> listePoints){
+        int index = 0;
+        double rightPoint = listePoints.elementAt(0).x;
+
+        for(int i=1; i < listePoints.size(); ++i){
+            if( listePoints.elementAt(i).x > rightPoint ){
+                index = i;
+                rightPoint = listePoints.elementAt(i).x;
+            }
+        }
+
+        return index;
+    }
+
     /** Retourne un nombre aleatoire entre 0 et n-1. */
     static int rand(int n)
     {
