@@ -123,13 +123,14 @@ class Algorithmes {
         double vecTwo_x;
         double vecTwo_y;
 
-        vecOne_x = pointTwo.x - pointOne.x;
-        vecOne_y = pointTwo.y - pointOne.y;
+        vecOne_x = pointOne.x - pointTwo.x;
+        vecOne_y = pointOne.y - pointTwo.y;
 
         vecTwo_x = pointThree.x - pointTwo.x;
         vecTwo_y = pointThree.y - pointTwo.y;
 
-        return ((vecOne_x * vecTwo_y) - (vecTwo_x * vecOne_y)) > 0;
+        if( pointTwo.isRight ) return ( (vecOne_y * vecTwo_x)) - (vecOne_x * vecTwo_y) > 0;
+        return ((vecOne_x * vecTwo_y) - (vecOne_y * vecTwo_x)) > 0;
     }
 
     static void triangulation(Vector<Point> finalList, Vector<Segment> segments){
@@ -145,8 +146,6 @@ class Algorithmes {
         for(int i=2; i < finalList.size()-1; ++i){
 
             Point pCourrant = finalList.elementAt(i);
-
-            System.out.println(i);
 
             if( pCourrant.isRight != pileS.lastElement().isRight ){ // CAS 1 - éléments sur chaînes différentes
 
@@ -169,7 +168,6 @@ class Algorithmes {
                     Point tetePileAnt = pileS.pop(); // tête de pile - 1
 
                     if(crossProduct(tetePileAnt, tetePile, pCourrant)) { // Produit vectoriel
-                        System.out.println(i + " : " + tetePileAnt.number + " " + tetePile.number + " " + pCourrant.number + " crossProduct YES");
                         Segment newSeg = new Segment(pCourrant, tetePileAnt);
                         newSeg.diagonale = true;
                         segments.addElement(newSeg);
@@ -177,8 +175,6 @@ class Algorithmes {
                         pileS.push(tetePileAnt);
                     }
                     else {
-                        System.out.println(i + " : " + tetePileAnt.number + " " + tetePile.number + " " + pCourrant.number + " crossProduct NO");
-
                         pileS.push(tetePileAnt);
                         pileS.push(tetePile);
                         break;
@@ -191,15 +187,12 @@ class Algorithmes {
 
         // Ajout des dernières diagonales
         pileS.pop(); // Tout tracer sauf le premier élément de la pile
-                // Tout tracer sauf le dernier élément de la pile
-        while( pileS.size() > 1 ) {
-            System.out.print("->" + pileS.lastElement().number);
+        // Tout tracer sauf le dernier élément de la pile
+        while( pileS.size() > 1 ){
             Segment newSeg = new Segment(finalList.lastElement(), pileS.pop());
             newSeg.diagonale = true;
             segments.addElement(newSeg);
         }
-
-        System.out.println("\n---- END ----\n\n\n");
     }
 
 }
