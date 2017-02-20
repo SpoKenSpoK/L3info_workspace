@@ -41,8 +41,14 @@ class Algorithmes {
     }
 
 
-    static Vector<Segment> algoIncremental(Vector<Point> points){
+    static Vector<Segment> quickHull(Vector<Point> points){
         Vector<Segment> segments = new Vector<>();
+
+        if(points.size() > 1){
+            System.out.println( theLeftPoint(points).x );
+            System.out.println( theRightPoint(points).x );
+        }
+
 
 
 
@@ -79,32 +85,24 @@ class Algorithmes {
         return segments;
     }
 
-    static int theLeftPoint(Vector<Point> listePoints){
-        int index = 0;
-        double leftPoint = listePoints.elementAt(0).x;
+    static Point theLeftPoint(Vector<Point> listePoints){
+        Point leftPoint = listePoints.elementAt(0);
 
-        for(int i=1; i < listePoints.size(); ++i){
-            if( listePoints.elementAt(i).x < leftPoint ){
-                index = i;
-                leftPoint = listePoints.elementAt(i).x;
-            }
-        }
+        for(int i=1; i < listePoints.size(); ++i)
+            if( listePoints.elementAt(i).x < leftPoint.x )
+                leftPoint = listePoints.elementAt(i);
 
-        return index;
+        return leftPoint;
     }
 
-    static int theRightPoint(Vector<Point> listePoints){
-        int index = 0;
-        double rightPoint = listePoints.elementAt(0).x;
+    static Point theRightPoint(Vector<Point> listePoints){
+        Point rightPoint = listePoints.elementAt(0);
 
-        for(int i=1; i < listePoints.size(); ++i){
-            if( listePoints.elementAt(i).x > rightPoint ){
-                index = i;
-                rightPoint = listePoints.elementAt(i).x;
-            }
-        }
+        for(int i=1; i < listePoints.size(); ++i)
+            if( listePoints.elementAt(i).x > rightPoint.x )
+                rightPoint = listePoints.elementAt(i);
 
-        return index;
+        return rightPoint;
     }
 
     /** Retourne un nombre aleatoire entre 0 et n-1. */

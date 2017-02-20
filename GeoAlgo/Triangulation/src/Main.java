@@ -9,6 +9,7 @@ public class Main  {
     public static void main(String[] args) {
         // Construction de la fenetre
         JFrame frame = new JFrame("Saisir des points et afficher des segments en resultat");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Construction de la zone d'affichage
         ZoneSaisirPointsAfficherSegments zoneAffichage = new ZoneSaisirPointsAfficherSegments();

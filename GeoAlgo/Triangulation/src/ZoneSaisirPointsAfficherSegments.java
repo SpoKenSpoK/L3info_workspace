@@ -180,6 +180,9 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
 
                 g.drawString(Integer.toString(p.number), (int)p.x + 30, (int)p.y + 10);
             }
+            else{
+                g.drawString(Double.toString(p.x), (int)p.x-15, (int)p.y+20);
+            }
         }
     }
 
@@ -268,7 +271,8 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
     {
         if( !ZoneSaisirPointsAfficherSegments.enveloppeConvexe )
             segments = Algorithmes.algorithme1(points);
-        
+        else
+            segments = Algorithmes.quickHull(points);
     }
 
     public void mouseReleased(MouseEvent evt) {}
