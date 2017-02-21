@@ -38,7 +38,7 @@ void negation();
 void facteur();
 void var();
 void optIndice();
-void appelFonction();
+void appelFct();
 void listeExpressions();
 void listeExpressionsBis();
 

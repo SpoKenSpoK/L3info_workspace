@@ -95,7 +95,8 @@ $i	id_variable	$i
 tantque	mot_clef	tantque
 $i	id_variable	$i
 <	symbole	INFERIEUR
-$nfaire	id_variable	$nfaire
+$n	id_variable	$n
+faire	mot_clef	faire
 {	symbole	ACCOLADE_OUVRANTE
 ecrire	mot_clef	ecrire
 (	symbole	PARENTHESE_OUVRANTE

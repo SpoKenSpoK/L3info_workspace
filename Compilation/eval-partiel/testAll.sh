@@ -5,16 +5,16 @@
 # Compile le programme source et compare la sortie avec la référence.
 # Pour le code machine, compare la SORTIE de l'exécution
 # Vérifie aussi que MIPS et INTEL donnent le même résultat (optionnel)
-# Comprend 
-#   * analyse lexicale, 
-#   * analyse syntaxique, 
-#   * arbre abstrait, 
+# Comprend
+#   * analyse lexicale,
+#   * analyse syntaxique,
+#   * arbre abstrait,
 #   * table des symboles et
 #   * code machine (Intel).
 #
 # ATTENTION : pour que le script marche, votre compilateur doit returner 0 en
-# cas de succès, autre valeur en cas d'erreur (programme ne compile pas 
-# correctement) et doit permettre d'afficher les sorties sur stdout, sauf 
+# cas de succès, autre valeur en cas d'erreur (programme ne compile pas
+# correctement) et doit permettre d'afficher les sorties sur stdout, sauf
 # d'éventuels messages d'erreur, sur stderr. On doit pouvoir, à tout moment,
 # changer le type de sortie (lex, synt, asynt, tab, nasm) avec des options.
 #
@@ -23,10 +23,10 @@
 ###     LLL        III      RRR  RRR    EEEEEEEEE     ||||
 ###     LLL        III      RRR    RR   EEE           ||||
 ###     LLL        III      RRR  RRR    EEEEEEEE      ||||
-###     LLL        III      RRRRRRR     EEEEEEEE    \\\\//// 
-###     LLL        III      RRR RRR     EEE          \\\/// 
-###     LLLLLLLL   III      RRR   RRR   EEEEEEEE      \\// 
-###     LLLLLLLL IIIIIII    RRR   RRR   EEEEEEEEE      \/  
+###     LLL        III      RRRRRRR     EEEEEEEE    \\\\////
+###     LLL        III      RRR RRR     EEE          \\\///
+###     LLLLLLLL   III      RRR   RRR   EEEEEEEE      \\//
+###     LLLLLLLL IIIIIII    RRR   RRR   EEEEEEEEE      \/
 ##############################################################################
 
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
@@ -35,7 +35,7 @@ MYCOMPILO="/home/spoken/Git/L3Info/Compilation/compilo"
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
-EXITONFAIL=0                     # mettre à zéro pour continuer après erreurs
+EXITONFAIL=1                     # mettre à zéro pour continuer après erreurs
 MYCOMPILODEFAULT="${MYCOMPILO} -s"  # utilisé pour test reconnaissance et erreur
 MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
 MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
@@ -91,8 +91,8 @@ function XMLDIFF() {
 function mips_exec(){
   mipsfile="$1"
   input="$2"
-  echo -e "${input}" | 
-  java -jar $MARS "${mipsfile}" | 
+  echo -e "${input}" |
+  java -jar $MARS "${mipsfile}" |
   tail -n +3 | head -n -1 | # Output has author and version info, remove
   sed ':a;N;$!ba;s/[ \n]/_/g' # Homogenize whitespace
 }
@@ -120,11 +120,11 @@ function nasm_exec(){
   input="$2"
   ${NASM} ${NASMOPTS} "${nasmfile}" -o "${nasmfile}.o"
   ${LD} ${LDOPTS} -o "${nasmfile}.exe" "${nasmfile}.o"
-  echo -e "${input}" | 
+  echo -e "${input}" |
   ./"${nasmfile}".exe |
   sed ':a;N;$!ba;s/[ \n]/_/g' # Homogenize whitespace
   # Comment the line below out if you want to keep .o and executable
-  rm "${nasmfile}.o" "${nasmfile}.exe" 
+  rm "${nasmfile}.o" "${nasmfile}.exe"
 }
 
 ##############################################################################
@@ -154,7 +154,7 @@ function compare_mips_nasm(){
 }
 
 ##############################################################################
-# Fonction pour faire le diff entre deux fichiers, vérifier et afficher le 
+# Fonction pour faire le diff entre deux fichiers, vérifier et afficher le
 # résultat avec de belles couleurs.
 # @param $1 Nom de la fonction utilisée pour faire le diff (parmi 3 ci-dessus)
 # @param $2 Nom du fichier d'entrée à tester sans extension (p. ex. affect)
@@ -172,7 +172,7 @@ function diff_prog() {
   echo -e "`wc -l output/${input}.${suffix} | awk '{print $1}'` lignes"
   if [ -f ref-${suffix}/$input.${suffix} ]; then
     ${diffprog} output/${input}.${suffix} ref-${suffix}/${input}.${suffix} ${values} 2>&1 2> /dev/null # TODO: UNCOMMENT
-    if [ $? != 0 ]; then 
+    if [ $? != 0 ]; then
       echo -e "\033[31mTEST ${testname[${suffix}]} ÉCHOUÉ\033[0m"
       echo -e "Différences entre output/${input}.${suffix} ref-${suffix}/${input}.${suffix} en utilisant $diffprog:"
       ${diffprog} output/${input}.${suffix} ref-${suffix}/${input}.${suffix} ${values}
@@ -200,24 +200,24 @@ function test_fichier_ok() {
     if [ -f input/$input.l ]; then
       # Reconnaissance : programme correct doit être accepté
       if [ -n "${MYCOMPILODEFAULT}" ]; then
-        echo -e "\033[35m > Reconnaissance (accepte l'entrée)\033[0m"        
+        echo -e "\033[35m > Reconnaissance (accepte l'entrée)\033[0m"
         ${MYCOMPILODEFAULT} input/$input.l > output/$input.synt
-        if [ $? != 0 ]; then 
+        if [ $? != 0 ]; then
           echo -e "\033[31mTEST Reconnaissance ÉCHOUÉ\033[0m"
-          echo -e "Le programme $input.l n'a pas été compilé correctement"	
+          echo -e "Le programme $input.l n'a pas été compilé correctement"
           if [ $EXITONFAIL = 1 ]; then exit 1; fi
         else
           echo -e "\033[32mTEST Reconnaissance OK\033[0m"
         fi
-      fi     
+      fi
       # Teste analyseur lexical
       if [ -n "${MYCOMPILOLEX}" ]; then
         ${MYCOMPILOLEX} input/$input.l > output/$input.lex
         diff_prog REGDIFF $input lex
-      fi 
+      fi
       # Teste analyseur syntaxique
       if [ -n "${MYCOMPILOSYNT}" ]; then
-        ${MYCOMPILOSYNT} input/$input.l > output/$input.synt          
+        ${MYCOMPILOSYNT} input/$input.l > output/$input.synt
         diff_prog XMLDIFF $input synt
       fi
       # Teste création de l'arbre abstrait
@@ -243,14 +243,14 @@ function test_fichier_ok() {
       # Sanity check: MIPS et Intel génèrent la même sortie
       if [ -n "${MYCOMPILOMIPS}" -a -n "${MYCOMPILONASM}" ]; then
         compare_mips_nasm ref-mips/$input.mips ref-nasm/$input.nasm "$2"
-	if [ $? != 0 ]; then 
+	if [ $? != 0 ]; then
            echo -e "\033[34mATTENTION: MIPS et Intel différents\033[0m"
            exit -1
 	fi
       fi
     else
       echo -e "\033[31minput/$input.l non trouvé\033[0m"
-      echo -e "\033[31mTest impossible\033[0m"     
+      echo -e "\033[31mTest impossible\033[0m"
     fi
 }
 
@@ -262,7 +262,7 @@ function test_fichier_fail() {
 	input=$1
     echo -e "\n\033[4m ---- Test input/$input.l ----\033[0m"
     ${MYCOMPILODEFAULT} input/$input.l > /dev/null
-    if [ $? = 0 ]; then 
+    if [ $? = 0 ]; then
     echo -e "\033[31mTEST REJET ÉCHOUÉ\033[0m"
       echo -e "Le programme $input.l est accepté mais il devrait être rejeté"
       if [ $EXITONFAIL = 1 ]; then exit 1; fi
@@ -371,4 +371,3 @@ echo -e "\033[1m\n>> 3.2) Tests nouvelle fonctionnalité FAIL\033[0m"
 
 # Boucle faire-tantque
 test_fichier_fail faireErreur
-

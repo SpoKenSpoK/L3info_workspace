@@ -354,18 +354,19 @@ void instructionTantque( void ){
         nom_token(uniteCourante, buff, val);
         affiche_element(buff,val,1);
         uniteCourante = yylex();
-        if( est_premier(uniteCourante, _expression_) ){
             expression();
             if( uniteCourante == FAIRE ){
+
                 nom_token(uniteCourante, buff, val);
                 affiche_element(buff,val,1);
                 uniteCourante = yylex();
-                if( est_premier(uniteCourante, _instructionBloc_) ){
-                    instructionBloc();
-                } else erreur(__FUNCTION__);
-            } else erreur(__FUNCTION__);
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
+
+                instructionBloc();
+
+            }
+    }
+
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -374,7 +375,7 @@ void instructionAppel( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( est_premier(uniteCourante, _appelFct_) ){
-        appelFonction();
+        appelFct();
         if( uniteCourante == POINT_VIRGULE ){
             nom_token(uniteCourante, buff, val);
             affiche_element(buff,val,1);
@@ -680,7 +681,7 @@ void facteur( void ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    else if( est_premier(uniteCourante, _appelFct_) ){ appelFonction(); }
+    else if( est_premier(uniteCourante, _appelFct_) ){ appelFct(); }
     else if( est_premier(uniteCourante, _var_) ){ var(); }
     else if( uniteCourante == LIRE ){
         nom_token(uniteCourante, buff, val);
@@ -746,7 +747,7 @@ void optIndice( void ){
     affiche_balise_fermante(__FUNCTION__, 1);
 }
 
-void appelFonction( void ){
+void appelFct( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == ID_FCT ){

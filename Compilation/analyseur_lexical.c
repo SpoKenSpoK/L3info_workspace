@@ -15,9 +15,9 @@
 extern FILE *yyin;
 
 char* tableMotsClefs[] = {
-    "si",
-    "alors",
     "sinon",
+    "alors",
+    "si",
     "tantque",
     "faire",
     "entier",
@@ -27,9 +27,9 @@ char* tableMotsClefs[] = {
 };
 
 int codeMotClefs[] = {
-    SI,
-    ALORS,
     SINON,
+    ALORS,
+    SI,
     TANTQUE,
     FAIRE,
     ENTIER,
@@ -38,24 +38,24 @@ int codeMotClefs[] = {
     RETOUR
 };
 
-char* tableSymboles[] = {
-    "+",
-    "-",
-    "*",
-    "/",
-    ",",
-    ";",
-    "(",
-    ")",
-    "{",
-    "}",
-    "[",
-    "]",
-    "=",
-    "<",
-    "&",
-    "|",
-    "!"
+char tableSymboles[] = {
+    '+',
+    '-',
+    '*',
+    '/',
+    ',',
+    ';',
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '=',
+    '<',
+    '&',
+    '|',
+    '!'
 };
 
 int codeSymboles[] = {
@@ -142,75 +142,77 @@ void delireCar()
  ******************************************************************************/
 int yylex(void)
 {
-
-    char c;
-    //int i;
     yytext[yyleng = 0] = '\0';
+    char c;
+    int numberFound = 1;
+    int charFound = 0;
 
-    int varFound = 0;
-    int foncFound = 0;
-    int numberFound = 0;
+    // Evite les espaces, commentaires, saut de ligne - test la fin de fichier
+    if( mangeEspaces() < 0 ) return FIN;
 
-    for(;;){
-        // Evite les espaces, commentaires, saut de ligne - test la fin de fichier
-        if( mangeEspaces() < 0 ) return FIN;
+    // Lecture dans un premier temps de la table des symboles
+    c = lireCar();
+    for(int i=0; i < nbSymboles; ++i)
+        if( c == tableSymboles[i] )
+            return codeSymboles[i];
 
+    //Dans le cas où aucun symbole n'est trouvé à la première Lecture
+    //On rempli yytext jusqu'à trouver un nouveau symbole
+    while(charFound == 0){
         c = lireCar();
 
-        // Test sur l'alpha du caractère | savoir si l'on part sur une fonction / variable / nombre
-        if( is_alphanum(c) ){
-            if( is_alpha(c) ){
-                if( strcmp(yytext,"$") == 0 ) varFound = 1;
-                else foncFound = 1;
-            }
-            else
-                numberFound = 1;
+        if( (c == ' ') || (c == '\n') || (c == '\t') || (c == '#' ) ){
+            delireCar();
+            charFound = 1;
+        }
 
-            if( numberFound == 1 && foncFound == 1 && varFound == 0 ){
+        for(int i=0; i < nbSymboles; ++i)
+            if( c == tableSymboles[i] ){
                 delireCar();
-                numberFound = 0;
-                return NOMBRE;
+                charFound = 1;
+                break;
             }
-        }
-
-        // Nombre
-        else if( numberFound == 1){
-            delireCar();
-            numberFound = 0;
-            return NOMBRE;
-        }
-        // Variable
-        else if( varFound == 1){
-            delireCar();
-            varFound = 0;
-            return ID_VAR;
-        }
-        // Fonction
-        else if( foncFound == 1){
-            delireCar();
-            foncFound = 0;
-            return ID_FCT;
-        }
-
-        else{
-            // Comparaison avec les symboles
-            for(int i=0; i < nbSymboles; ++i)
-                if( strcmp(yytext, tableSymboles[i]) == 0 )
-                    return codeSymboles[i];
-        }
-
-        // Evite de tester les mots clefs car inutile si l'on est sur une variable | nombre
-        // Utile pour une fonction, car il peut s'agir d'un mot clef
-        // Futur test à implementer
-
-        //if( varFound == 1 || numberFound == 1 ) continue;
-
-        // Comparaison avec les mots clefs
-        for(int i=0; i < nbMotsClefs; ++i)
-            if( strcmp(yytext, tableMotsClefs[i]) == 0 )
-                return codeMotClefs[i];
 
     }
+
+    // Comparaison avec les mots clefs
+    for(int i=0; i < nbMotsClefs; ++i)
+        if( strcmp(yytext, tableMotsClefs[i]) == 0 )
+            return codeMotClefs[i];
+
+    // Nombre
+    for(int i=0; i < strlen(yytext); ++i){
+        if( !is_num(yytext[i]) ){
+            numberFound = 0;
+            break;
+        }
+        return NOMBRE;
+    }
+    if( numberFound ) return NOMBRE;
+
+    // ID_VAR & ID_FCT
+    if( is_alpha(yytext[0]) ){
+
+        if( yytext[0] == '$' ){
+            for(;;){
+                c = lireCar();
+                if(!is_alpha(c)){
+                    delireCar();
+                    return ID_VAR;
+                }
+            }
+        }
+
+        for(;;){
+            c = lireCar();
+            if(!is_alphanum(c)){
+                delireCar();
+                return ID_FCT;
+            }
+        }
+    }
+
+    return 0;
 }
 
 /*******************************************************************************
