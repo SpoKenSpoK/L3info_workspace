@@ -186,7 +186,6 @@ int yylex(void)
             numberFound = 0;
             break;
         }
-        return NOMBRE;
     }
     if( numberFound ) return NOMBRE;
 
