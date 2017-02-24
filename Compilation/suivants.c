@@ -92,6 +92,7 @@ void initialise_suivants(void){
 
   //LI
   suivants[_listeInstructions_][ACCOLADE_FERMANTE] = 1;
+  //suivants[_listeInstructions_][FAIRE] = 1;
 
   //ISI
   suivants[_instructionSi_][ID_VAR] = 1;
@@ -214,6 +215,7 @@ void initialise_suivants(void){
   suivants[_comparaison_][FAIRE] = 1;
 
   //COMPB
+  suivants[_comparaisonBis_][OU] = 1;
   suivants[_comparaisonBis_][ET] = 1;
   suivants[_comparaisonBis_][CROCHET_FERMANT] = 1;
   suivants[_comparaisonBis_][PARENTHESE_FERMANTE] = 1;

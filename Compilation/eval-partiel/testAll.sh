@@ -35,7 +35,7 @@ MYCOMPILO="/home/spoken/Git/L3Info/Compilation/compilo"
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
-EXITONFAIL=0                     # mettre à zéro pour continuer après erreurs
+EXITONFAIL=1                     # mettre à zéro pour continuer après erreurs
 MYCOMPILODEFAULT="${MYCOMPILO} -s"  # utilisé pour test reconnaissance et erreur
 MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
 MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
