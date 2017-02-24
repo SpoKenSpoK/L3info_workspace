@@ -12,6 +12,12 @@ int uniteCourante;
 char buff[1024];
 char val[1024];
 
+void readToken(){
+    nom_token(uniteCourante, buff, val);
+    affiche_element(buff, val, 1);
+    uniteCourante = yylex();
+}
+
 void programme( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
@@ -33,18 +39,14 @@ void optDecVariables( void ){
 
     if( est_premier(uniteCourante, _listeDecVariables_) ){
         listeDecVariables();
-        if( uniteCourante == POINT_VIRGULE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff, val, 1);
-            uniteCourante = yylex();
-        }
-        //else erreur(__FUNCTION__);
+        if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
+        readToken();
     }
     else if( est_suivant(uniteCourante, _optDecVariables_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -53,63 +55,41 @@ void optDecVariables( void ){
 void listeDecVariables( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _declarationVariable_) || est_premier(uniteCourante, _listeDecVariablesBis_) ){
+    if( est_premier(uniteCourante, _declarationVariable_) ){
         declarationVariable();
         listeDecVariablesBis();
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
-    }else{
-        erreur(__FUNCTION__);
     }
+    else erreur(__FUNCTION__);
 
-
+    affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void listeDecVariablesBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == VIRGULE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        //if( est_premier(uniteCourante, _declarationVariable_) || est_premier(uniteCourante, _listeDecVariablesBis_) ){
+        readToken();
         declarationVariable();
         listeDecVariablesBis();
-
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
-        //}
-        //else erreur(__FUNCTION__);
     }
     else if( est_suivant(uniteCourante, _listeDecVariablesBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
+
+    affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void declarationVariable( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == ENTIER ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
+    if( uniteCourante != ENTIER ) erreur(__FUNCTION__);
+    readToken();
+    if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
+    readToken();
 
-        if( uniteCourante == ID_VAR ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-
-            //if( est_premier(uniteCourante, _optTailleTableau_) ){
-            optTailleTableau();
-            //}
-            //else erreur(__FUNCTION__);
-        }
-        //else erreur(__FUNCTION__);
-    }
-    //selse erreur(__FUNCTION__);
+    optTailleTableau();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -119,27 +99,18 @@ void optTailleTableau( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == CROCHET_OUVRANT ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        if( uniteCourante == NOMBRE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-
-            if( uniteCourante == CROCHET_FERMANT ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-            }//else erreur(__FUNCTION__);
-        }//else erreur(__FUNCTION__);
+        readToken();
+        if( uniteCourante != NOMBRE ) erreur(__FUNCTION__);
+        readToken();
+        if( uniteCourante != CROCHET_FERMANT ) erreur(__FUNCTION__);
+        readToken();
     }
+
     else if( est_suivant(uniteCourante, _optTailleTableau_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -147,7 +118,7 @@ void optTailleTableau( void ){
 void listeDecFonctions( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _declarationFonction_) || est_premier(uniteCourante, _listeDecFonctions_) ){
+    if( est_premier(uniteCourante, _declarationFonction_) ){
         declarationFonction();
         listeDecFonctions();
     }
@@ -155,7 +126,7 @@ void listeDecFonctions( void ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -164,22 +135,13 @@ void declarationFonction( void ){
 
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == ID_FCT ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
+    if( uniteCourante != ID_FCT ) erreur(__FUNCTION__);
 
-        /*if( est_premier(uniteCourante, _listeParam_) || est_premier(uniteCourante, _optDecVariables_) || est_premier(uniteCourante, _instructionBloc_) ){ */
-        listeParam();
-        optDecVariables();
-        instructionBloc();
+    readToken();
 
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
-
-        //else erreur(__FUNCTION__);
-    }
-    else erreur(__FUNCTION__);
+    listeParam();
+    optDecVariables();
+    instructionBloc();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -187,27 +149,16 @@ void declarationFonction( void ){
 void listeParam( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == PARENTHESE_OUVRANTE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
+    if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
 
-        //if( est_premier(uniteCourante, _optListeDecVariables_) ){
-            optListeDecVariables();
+    readToken();
+    optListeDecVariables();
 
-            if( uniteCourante == PARENTHESE_FERMANTE ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
+    if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
 
-                affiche_balise_fermante(__FUNCTION__,1);
-                return;
+    readToken();
 
-            } //else erreur(__FUNCTION__);
-        //} //else erreur(__FUNCTION__);
-    } //else erreur(__FUNCTION__);
-
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__,1);
 }
 
 void optListeDecVariables( void ){
@@ -220,6 +171,7 @@ void optListeDecVariables( void ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -227,7 +179,8 @@ void optListeDecVariables( void ){
 void instruction( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _instructionAffect_) ){ instructionAffect(); }
+    if( uniteCourante == FAIRE ){ instructionFaire(); }
+    else if( est_premier(uniteCourante, _instructionAffect_) ){ instructionAffect(); }
     else if( est_premier(uniteCourante, _instructionBloc_)){ instructionBloc(); }
     else if( est_premier(uniteCourante, _instructionSi_)){ instructionSi(); }
     else if( est_premier(uniteCourante, _instructionTantque_)){ instructionTantque(); }
@@ -240,45 +193,40 @@ void instruction( void ){
     affiche_balise_fermante(__FUNCTION__, 1);
 }
 
+void instructionFaire( void ){
+    affiche_balise_ouvrante(__FUNCTION__, 1);
+    readToken();
+    instructionBloc();
+    if( uniteCourante != TANTQUE ) erreur(__FUNCTION__);
+    readToken();
+    expression();
+    if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
+    readToken();
+    affiche_balise_fermante(__FUNCTION__, 1);
+}
+
 void instructionAffect( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
-
-    if( est_premier(uniteCourante, _var_) ){
-        var();
-        if( uniteCourante == EGAL ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-            //if( est_premier(uniteCourante, _expression_ )){
-                expression();
-                if(uniteCourante == POINT_VIRGULE){
-                    nom_token(uniteCourante, buff, val);
-                    affiche_element(buff,val,1);
-                    uniteCourante = yylex();
-                } //else erreur(__FUNCTION__);
-            //} else erreur(__FUNCTION__);
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
-
+    if( est_premier(uniteCourante, _var_) ) var();
+    if( uniteCourante != EGAL ) erreur(__FUNCTION__);
+    readToken();
+    expression();
+    if(uniteCourante != POINT_VIRGULE) erreur(__FUNCTION__);
+    readToken();
     affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void instructionBloc( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if(uniteCourante == ACCOLADE_OUVRANTE){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        if( est_premier(uniteCourante, _listeInstructions_)){
-            listeInstructions();
-            if(uniteCourante == ACCOLADE_FERMANTE){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-            } //else erreur(__FUNCTION__);
-        } //else erreur(__FUNCTION__);
-    } //else erreur(__FUNCTION__);
+    if(uniteCourante != ACCOLADE_OUVRANTE) erreur(__FUNCTION__);
+
+    readToken();
+    listeInstructions();
+
+    if(uniteCourante != ACCOLADE_FERMANTE) erreur(__FUNCTION__);
+
+    readToken();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -286,7 +234,7 @@ void instructionBloc( void ){
 void listeInstructions( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _instruction_) || est_premier(uniteCourante, _listeInstructions_)){
+    if( est_premier(uniteCourante, _instruction_) ){
         instruction();
         listeInstructions();
     }
@@ -301,27 +249,14 @@ void listeInstructions( void ){
 
 void instructionSi( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
+    if( uniteCourante != SI ) erreur(__FUNCTION__);
+    readToken();
+    expression();
 
-    if( uniteCourante == SI ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _expression_)){
-            expression();
-            if( uniteCourante == ALORS ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-                //if( est_premier(uniteCourante, _instructionBloc_) || est_premier(uniteCourante, _optSinon_) ){
-                    instructionBloc();
-                    optSinon();
-
-                    affiche_balise_fermante(__FUNCTION__, 1);
-                    return;
-                //} //else erreur(__FUNCTION__);
-            } //else erreur(__FUNCTION__);
-        //} else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
+    if( uniteCourante != ALORS ) erreur(__FUNCTION__);
+    readToken();
+    instructionBloc();
+    optSinon();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -330,13 +265,8 @@ void optSinon( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == SINON ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        if( est_premier(uniteCourante, _instructionBloc_) ){
-            instructionBloc();
-        } else erreur(__FUNCTION__);
+        readToken();
+        instructionBloc();
     }
     else if( est_suivant( uniteCourante, _optSinon_ )){
         affiche_balise_fermante(__FUNCTION__, 1);
@@ -351,21 +281,14 @@ void instructionTantque( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == TANTQUE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-            expression();
+        readToken();
+        expression();
             if( uniteCourante == FAIRE ){
-
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-
+                readToken();
                 instructionBloc();
-
             }
+            else erreur(__FUNCTION__);
     }
-
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
@@ -376,12 +299,10 @@ void instructionAppel( void ){
 
     if( est_premier(uniteCourante, _appelFct_) ){
         appelFct();
-        if( uniteCourante == POINT_VIRGULE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
+        if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
+        readToken();
+    }
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -389,49 +310,29 @@ void instructionAppel( void ){
 void instructionRetour( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == RETOUR ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        if( est_premier(uniteCourante, _expression_) ){
-            expression();
-            if( uniteCourante == POINT_VIRGULE ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-            } else erreur(__FUNCTION__);
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
-
+    if( uniteCourante != RETOUR ) erreur(__FUNCTION__);
+    readToken();
+    expression();
+    if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
+    readToken();
     affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void instructionEcriture( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == ECRIRE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        if( uniteCourante == PARENTHESE_OUVRANTE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-            if( est_premier(uniteCourante, _expression_) ){
-                expression();
-                if( uniteCourante == PARENTHESE_FERMANTE ){
-                    nom_token(uniteCourante, buff, val);
-                    affiche_element(buff,val,1);
-                    uniteCourante = yylex();
-                    if( uniteCourante == POINT_VIRGULE ){
-                        nom_token(uniteCourante, buff, val);
-                        affiche_element(buff,val,1);
-                        uniteCourante = yylex();
-                    } else erreur(__FUNCTION__);
-                } else erreur(__FUNCTION__);
-            } else erreur(__FUNCTION__);
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
+    if( uniteCourante != ECRIRE ) erreur(__FUNCTION__);
+    readToken();
+
+    if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
+    readToken();
+    expression();
+
+    if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
+    readToken();
+
+    if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
+    readToken();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -439,12 +340,10 @@ void instructionEcriture( void ){
 void instructionVide( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == POINT_VIRGULE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-    }
-    else erreur(__FUNCTION__);
+    if( uniteCourante != POINT_VIRGULE )
+     erreur(__FUNCTION__);
+
+    readToken();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -452,12 +351,9 @@ void instructionVide( void ){
 void expression( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier( uniteCourante, _conjonction_) || est_premier( uniteCourante, _expressionBis_) ){
+    if( est_premier( uniteCourante, _conjonction_) ){
         conjonction();
         expressionBis();
-
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
     } else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
@@ -467,23 +363,15 @@ void expressionBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == OU ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _conjonction_) || est_premier(uniteCourante, _expressionBis_) ){
-            conjonction();
-            expressionBis();
-
-            affiche_balise_fermante(__FUNCTION__, 1);
-            return;
-        /*}
-        else erreur(__FUNCTION__);*/
+        readToken();
+        conjonction();
+        expressionBis();
     }
     else if( est_suivant(uniteCourante, _expressionBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -491,7 +379,7 @@ void expressionBis( void ){
 void conjonction( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _comparaison_) || est_premier(uniteCourante, _conjonctionBis_) ){
+    if( est_premier(uniteCourante, _comparaison_) ){
         comparaison();
         conjonctionBis();
     }
@@ -504,25 +392,15 @@ void conjonctionBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == ET ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        //if( est_premier(uniteCourante, _comparaison_) || est_premier(uniteCourante, _conjonctionBis_) ){
-            comparaison();
-            conjonctionBis();
-
-            affiche_balise_fermante(__FUNCTION__, 1);
-            return;
-
-        /*}
-        else erreur(__FUNCTION__); */
+        readToken();
+        comparaison();
+        conjonctionBis();
     }
     else if( est_suivant(uniteCourante, _conjonctionBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -530,7 +408,7 @@ void conjonctionBis( void ){
 void comparaison( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _expArith_) || est_premier(uniteCourante, _comparaisonBis_) ){
+    if( est_premier(uniteCourante, _expArith_) ){
         expArith();
         comparaisonBis();
     }
@@ -543,23 +421,15 @@ void comparaisonBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == EGAL || uniteCourante == INFERIEUR ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _expArith_) || est_premier(uniteCourante, _comparaisonBis_) ){
+        readToken();
         expArith();
         comparaisonBis();
-
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
-        //}
-        //else erreur(__FUNCTION__);
     }
     else if( est_suivant(uniteCourante, _comparaisonBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -567,7 +437,7 @@ void comparaisonBis( void ){
 void expArith( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _terme_) ||  est_premier(uniteCourante, _expArithBis_) ){
+    if( est_premier(uniteCourante, _terme_) ){
         terme();
         expArithBis();
     }
@@ -580,32 +450,24 @@ void expArithBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == PLUS || uniteCourante == MOINS ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        //if( est_premier(uniteCourante, _terme_) ||  est_premier(uniteCourante, _expArithBis_) ){
+        readToken();
         terme();
         expArithBis();
-
-        affiche_balise_fermante(__FUNCTION__, 1);
-        return;
-        /*}
-        else erreur(__FUNCTION__);*/
     }
     else if( est_suivant(uniteCourante, _expArithBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
 
+    affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 void terme( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _negation_) || est_premier(uniteCourante, _termeBis_) ){
+    if( est_premier(uniteCourante, _negation_) ){
         negation();
         termeBis();
     }
@@ -618,19 +480,15 @@ void termeBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == FOIS || uniteCourante == DIVISE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _negation_) || est_premier(uniteCourante, _termeBis_) ){
-            negation();
-            termeBis();
-        //} else erreur(__FUNCTION__);
+        readToken();
+        negation();
+        termeBis();
     }
     else if( est_suivant(uniteCourante, _termeBis_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -639,14 +497,8 @@ void negation( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == NON ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        if( est_premier(uniteCourante, _negation_) ){
-            negation();
-        }
-        else erreur(__FUNCTION__);
+        readToken();
+        negation();
     }
     else if( est_premier(uniteCourante, _facteur_) ){
         facteur();
@@ -660,45 +512,26 @@ void facteur( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == PARENTHESE_OUVRANTE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _expression_) ){
+        readToken();
         expression();
-        if( uniteCourante == PARENTHESE_FERMANTE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-
-        } else erreur(__FUNCTION__);
-        //} else erreur(__FUNCTION__);
+        if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
+        readToken();
     }
     else if( uniteCourante == NOMBRE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
+        readToken();
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    else if( est_premier(uniteCourante, _appelFct_) ){ appelFct(); }
-    else if( est_premier(uniteCourante, _var_) ){ var(); }
     else if( uniteCourante == LIRE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        if( uniteCourante == PARENTHESE_OUVRANTE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-            if( uniteCourante == PARENTHESE_FERMANTE ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
-            } else erreur(__FUNCTION__);
-        } else erreur(__FUNCTION__);
-    } else erreur(__FUNCTION__);
-
+        readToken();
+        if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
+        readToken();
+        if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
+        readToken();
+    }
+    else if( est_premier(uniteCourante, _var_) ) var();
+    else if( est_premier(uniteCourante, _appelFct_) ) appelFct();
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -706,14 +539,9 @@ void facteur( void ){
 void var( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( uniteCourante == ID_VAR ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-        //if( est_premier(uniteCourante, _optIndice_) ){
-        optIndice();
-        //} else erreur(__FUNCTION__);
-    } //else erreur(__FUNCTION__);
+    if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
+    readToken();
+    optIndice();
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -722,27 +550,18 @@ void optIndice( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == CROCHET_OUVRANT ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
+        readToken();
+        expression();
 
-        //if( est_premier( uniteCourante, _expression_) ){
-            expression();
-            if( uniteCourante == CROCHET_FERMANT ){
-                nom_token(uniteCourante, buff, val);
-                affiche_element(buff,val,1);
-                uniteCourante = yylex();
+        if( uniteCourante != CROCHET_FERMANT ) erreur(__FUNCTION__);
 
-                affiche_balise_fermante(__FUNCTION__, 1);
-                return;
-            }// else erreur(__FUNCTION__);
-        //} else erreur(__FUNCTION__);
+        readToken();
     }
     else if( est_suivant(uniteCourante, _optIndice_) ){
         affiche_balise_fermante(__FUNCTION__, 1);
         return;
     }
-    //else erreur(__FUNCTION__);
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -751,23 +570,19 @@ void appelFct( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == ID_FCT ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
+        readToken();
         if( uniteCourante == PARENTHESE_OUVRANTE ){
-            nom_token(uniteCourante, buff, val);
-            affiche_element(buff,val,1);
-            uniteCourante = yylex();
-            //if( est_premier(uniteCourante, _listeExpressions_) ){
-                listeExpressions();
-                if( uniteCourante == PARENTHESE_FERMANTE ){
-                    nom_token(uniteCourante, buff, val);
-                    affiche_element(buff,val,1);
-                    uniteCourante = yylex();
-                }// else erreur(__FUNCTION__);
-            //} else erreur(__FUNCTION__);
-        }// else erreur(__FUNCTION__);
-    }// else erreur(__FUNCTION__);
+            readToken();
+            listeExpressions();
+            if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
+            readToken();
+        } else erreur(__FUNCTION__);
+    }
+    else if( est_suivant(uniteCourante, _appelFct_) ){
+        affiche_balise_fermante(__FUNCTION__, 1);
+        return;
+    }
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, 1);
 }
@@ -775,7 +590,7 @@ void appelFct( void ){
 void listeExpressions( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
-    if( est_premier(uniteCourante, _expression_) || est_premier(uniteCourante, _listeExpressionsBis_) ){
+    if( est_premier(uniteCourante, _expression_) ){
         expression();
         listeExpressionsBis();
     }
@@ -792,14 +607,9 @@ void listeExpressionsBis( void ){
     affiche_balise_ouvrante(__FUNCTION__, 1);
 
     if( uniteCourante == VIRGULE ){
-        nom_token(uniteCourante, buff, val);
-        affiche_element(buff,val,1);
-        uniteCourante = yylex();
-
-        if( est_premier(uniteCourante, _expression_) || est_premier(uniteCourante, _listeExpressionsBis_) ){
-            expression();
-            listeExpressionsBis();
-        } else erreur(__FUNCTION__);
+        readToken();
+        expression();
+        listeExpressionsBis();
     }
     else if( est_suivant(uniteCourante, _listeExpressionsBis_)){
         affiche_balise_fermante(__FUNCTION__, 1);

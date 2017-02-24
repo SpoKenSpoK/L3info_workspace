@@ -3,6 +3,7 @@
 
 #include "stdio.h"
 
+void readToken();
 void programme();
 void optDecVariables();
 void listeDecVariables();
@@ -15,6 +16,7 @@ void declarationFonction();
 void listeParam();
 void optListeDecVariables();
 void instruction();
+void instructionFaire();
 void instructionAffect();
 void instructionBloc();
 void instructionSi();
