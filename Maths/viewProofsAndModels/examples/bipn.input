@@ -1,0 +1,9 @@
+assign(domain_size,3).
+assign(max_models,-1).
+
+formulas(assumptions).
+
+a(x,y) & a(y,z) -> a(x,z).
+a(x,y) -> (a(x,z) | a(z,y)).
+
+end_of_list.

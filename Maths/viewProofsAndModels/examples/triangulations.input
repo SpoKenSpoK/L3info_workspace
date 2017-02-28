@@ -1,0 +1,34 @@
+assign(domain_size,6).
+assign(max_models,-1).
+
+set(arithmetic).
+set(order_domain).
+
+formulas(assumptions).
+
+
+s(x) = y <-> (y = x+1 | (x=(domain_size + -1) & y = 0)).
+p(x) = y <-> x = s(y).
+
+close(x,y) <-> (x = y | x = s(y) | y = s(x)).
+int(x,y) <-> -close(x,y).
+
+obetween(x,y,z) <-> (x < y & y < z).
+between(x,y,z) <-> (obetween(x,y,z) | obetween(z,x,y) | obetween(y,z,x)).
+cross(x,y,z,w) <-> (between(x,z,y) & between(z,y,w) & between(y,w,x)).
+
+a(x,y) -> int(x,y). 
+a(x,y) -> a(y,x).
+(a(x,y) & a(z,w)) -> (-cross(x,y,z,w) & -cross(x,y,w,z)).
+
+%% order on ordered pairs
+less(x,y,z,w) <-> (x < z | (x = z & y <= w)).
+
+(close(x,y) | a(x,y)) -> (l(x,y) = 0 & r(x,y) = 0).
+(int(x,y) & -a(x,y)) -> (a(l(x,y),r(x,y)) & cross(x,y,l(x,y),r(x,y))).
+(int(x,y) & -a(x,y)) -> ((a(z,w) & cross(x,y,z,w)) -> less(l(x,y),r(x,y),z,w)).
+
+d(x,y) <-> (x < y & a(x,y)).
+
+
+end_of_list.

@@ -1,0 +1,23 @@
+formulas(assumptions).
+
+p -> q.
+
+q -> r.
+
+end_of_list.
+
+formulas(assumptions).
+
+p -> q.
+
+q -> r.
+
+end_of_list.
+
+formulas(goals).
+
+p -> r.
+
+
+end_of_list.
+

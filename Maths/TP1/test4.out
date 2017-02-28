@@ -1,0 +1,111 @@
+============================== Prover9 ===============================
+Prover9 (64) version 2009-11A, November 2009.
+Process 4745 was started by spoken on dellxwing,
+Tue Feb 28 17:28:56 2017
+The command was "prover9 -f /home/spoken/Git/L3Info/Maths/TP1/test4".
+============================== end of head ===========================
+
+============================== INPUT =================================
+
+% Reading from file /home/spoken/Git/L3Info/Maths/TP1/test4
+
+
+formulas(assumptions).
+end_of_list.
+
+formulas(goals).
+p & q | r & q -> p | r.
+end_of_list.
+
+============================== end of input ==========================
+
+============================== PROCESS NON-CLAUSAL FORMULAS ==========
+
+% Formulas that are not ordinary clauses:
+1 p & q | r & q -> p | r # label(non_clause) # label(goal).  [goal].
+
+============================== end of process non-clausal formulas ===
+
+============================== PROCESS INITIAL CLAUSES ===============
+
+% Clauses before input processing:
+
+formulas(usable).
+end_of_list.
+
+formulas(sos).
+p | r.  [deny(1)].
+q.  [deny(1)].
+-p.  [deny(1)].
+-r.  [deny(1)].
+end_of_list.
+
+formulas(demodulators).
+end_of_list.
+
+============================== PREDICATE ELIMINATION =================
+
+No predicates eliminated.
+
+============================== end predicate elimination =============
+
+Auto_denials:  (non-Horn, no changes).
+
+Term ordering decisions:
+Predicate symbol precedence:  predicate_order([ p, q, r ]).
+Function symbol precedence:  function_order([ ]).
+After inverse_order:  (no changes).
+Unfolding symbols: (none).
+
+Auto_inference settings:
+  % set(binary_resolution).  % (non-Horn)
+  % set(neg_ur_resolution).  % (non-Horn, less than 100 clauses)
+
+Auto_process settings:
+  % set(factor).  % (non-Horn)
+  % set(unit_deletion).  % (non-Horn)
+
+kept:      2 p | r.  [deny(1)].
+kept:      3 q.  [deny(1)].
+kept:      4 -p.  [deny(1)].
+kept:      5 -r.  [deny(1)].
+
+============================== PROOF =================================
+
+% Proof 1 at 0.00 (+ 0.00) seconds.
+% Length of proof is 5.
+% Level of proof is 2.
+% Maximum clause weight is 2.000.
+% Given clauses 0.
+
+1 p & q | r & q -> p | r # label(non_clause) # label(goal).  [goal].
+2 p | r.  [deny(1)].
+4 -p.  [deny(1)].
+5 -r.  [deny(1)].
+6 $F.  [back_unit_del(2),unit_del(a,4),unit_del(b,5)].
+
+============================== end of proof ==========================
+
+============================== STATISTICS ============================
+
+Given=0. Generated=5. Kept=4. proofs=1.
+Usable=0. Sos=1. Demods=0. Limbo=2, Disabled=5. Hints=0.
+Kept_by_rule=0, Deleted_by_rule=0.
+Forward_subsumed=0. Back_subsumed=0.
+Sos_limit_deleted=0. Sos_displaced=0. Sos_removed=0.
+New_demodulators=0 (0 lex), Back_demodulated=0. Back_unit_deleted=1.
+Demod_attempts=0. Demod_rewrites=0.
+Res_instance_prunes=0. Para_instance_prunes=0. Basic_paramod_prunes=0.
+Nonunit_fsub_feature_tests=0. Nonunit_bsub_feature_tests=1.
+Megabytes=0.02.
+User_CPU=0.00, System_CPU=0.00, Wall_clock=0.
+
+============================== end of statistics =====================
+
+============================== end of search =========================
+
+THEOREM PROVED
+
+Exiting with 1 proof.
+
+Process 4745 exit (max_proofs) Tue Feb 28 17:28:56 2017

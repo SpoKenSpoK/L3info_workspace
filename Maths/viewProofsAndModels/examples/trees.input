@@ -1,0 +1,38 @@
+assign(domain_size,4).
+assign(max_models,-1).
+
+set(order_domain).
+
+formulas(assumptions).
+
+R(x,x,y).
+R(x,y,z) -> R(z,y,x).
+
+R(x,y,z) & R(x,z,w) -> R(x,y,w).
+R(x,y,z) & R(x,z,y) -> y = z.
+
+%% Totalité
+(R(x,z,y) & R(x,w,y)) -> (R(x,z,w) | R(x,w,z)). 
+(R(x,z,y) & R(x,w,y)) -> (R(z,w,y) | R(w,z,y)).
+
+%% Pour 
+x != y & y != z & x != z & R(x,y,z) -> -R(y,z,x).
+(y != z & -R(x,y,z) & - R(x,z,y)) -> R(y,x,z).
+ 
+Q(x,y,z) <-> (x != y & (R(x,z,y) -> (z = x | z = y))).
+
+%% Work around for
+%% c(x,y) <-> Q(x,y,z).
+%% which is
+%% c(x,y) -> Q(x,y,z).
+c(x,y) -> Q(x,y,z).
+%% plus
+%% exists z (Q(x,y,z) -> c(x,y)).
+Q(x,y,f(x,y)) -> c(x,y).
+(Q(x,y,z) -> c(x,y)) -> f(x,y) <= z.	
+
+
+% exists u P(U).
+
+
+end_of_list.

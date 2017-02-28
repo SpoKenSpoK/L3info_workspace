@@ -1,0 +1,21 @@
+============================== Prover9 ===============================
+Prover9 (64) version 2009-11A, November 2009.
+Process 9283 was started by spoken on dellxwing,
+Tue Feb 28 16:28:03 2017
+The command was "prover9 -f bipn.input".
+============================== end of head ===========================
+
+============================== INPUT =================================
+
+% Reading from file bipn.input
+
+assign(domain_size,3).
+
+%%ERROR: Parameter not recognized:
+
+%%START ERROR%%
+assign(domain_size,3).
+%%END ERROR%%
+
+Fatal error:  Parameter not recognized
+

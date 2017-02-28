@@ -1,0 +1,11 @@
+assign(max_models,-1).
+
+assign(domain_size,3).
+
+formulas(assumtions).
+
+R(x,x).
+R(x,y) & R(y,z) -> R(x,z).
+R(x,y) & R(y,x) -> x = y.
+
+end_of_list.

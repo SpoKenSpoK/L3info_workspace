@@ -1,0 +1,6 @@
+formulas(assumptions).
+end_of_list.
+
+formulas(goals).
+((p->q) & (q->r)) -> (p->r).
+end_of_list.

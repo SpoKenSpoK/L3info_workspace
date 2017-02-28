@@ -1,0 +1,9 @@
+formulas(assumptions).
+q -> (-q | r).
+q -> (p & -r).
+end_of_list.
+
+formulas(goals).
+q -> r.
+end_of_list.
+%bugggg

@@ -1,0 +1,18 @@
+============================== Prover9 ===============================
+Prover9 (64) version 2009-11A, November 2009.
+Process 9450 was started by spoken on dellxwing,
+Tue Feb 28 16:29:52 2017
+The command was "prover9".
+============================== end of head ===========================
+
+============================== INPUT =================================
+assign(max_models,-1).
+
+%%ERROR: Parameter not recognized:
+
+%%START ERROR%%
+assign(max_models,-1).
+%%END ERROR%%
+
+Fatal error:  Parameter not recognized
+

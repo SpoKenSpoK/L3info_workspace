@@ -1,0 +1,30 @@
+============================== prooftrans ============================
+Prover9 (32) version Dec-2007, Dec 2007.
+Process 89277 was started by lsantoca on dhcp-175.lidil.univ-mrs.fr,
+Thu Feb 23 16:38:43 2017
+The command was "/Users/lsantoca/old-lsantoca/Downloads/Prover9-Mace4-v05B.app/Contents/Resources/bin-mac-intel/prover9".
+============================== end of head ===========================
+
+============================== end of input ==========================
+
+============================== PROOF =================================
+
+% -------- Comments from original proof --------
+% Proof 1 at 0.00 (+ 0.00) seconds.
+% Length of proof is 10.
+% Level of proof is 3.
+% Maximum clause weight is 2.
+% Given clauses 4.
+
+1 a -> b # label(non_clause).  [assumption].
+2 b -> c # label(non_clause).  [assumption].
+3 a -> c # label(non_clause) # label(goal).  [goal].
+4 -a | b.  [clausify(1)].
+5 -b | c.  [clausify(2)].
+6 a.  [deny(3)].
+7 -c.  [deny(3)].
+8 b.  [ur(4,a,6,a)].
+9 -b.  [resolve(7,a,5,b)].
+10 $F.  [resolve(9,a,8,a)].
+
+============================== end of proof ==========================
