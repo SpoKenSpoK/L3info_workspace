@@ -1,7 +1,4 @@
-import java.util.Random;
-import java.util.Stack;
-import java.util.Vector;
-import java.util.Collections;
+import java.util.*;
 
 /** La classe algorithme. */
 class Algorithmes {
@@ -43,13 +40,45 @@ class Algorithmes {
 
     static Vector<Segment> quickHull(Vector<Point> points){
         Vector<Segment> segments = new Vector<>();
+        Vector<Point> pConvexe = new Vector<>();
+        Vector<Point> upSide = new Vector<>();
+        Vector<Point> downSide = new Vector<>();
 
-        if(points.size() > 1){
-            System.out.println( theLeftPoint(points).x );
-            System.out.println( theRightPoint(points).x );
+        if(points.size() > 2){
+            int indexLPoint = theLeftPoint(points);
+            int indexRPoint = theRightPoint(points);
+
+            Point lPoint = points.elementAt( indexLPoint );
+            Point rPoint = points.elementAt( indexRPoint );
+
+            pConvexe.addElement(lPoint);
+            pConvexe.addElement(rPoint);
+
+            System.out.println("--- start ---\n->" + lPoint.x + "\n->" + rPoint.x + "\n--- end ---" );
+
+            for(int i=0; i < points.size(); ++i){
+                if( points.elementAt(i).x != points.elementAt(indexLPoint).x && points.elementAt(i).x != points.elementAt(indexRPoint).x ){
+                    /*System.out.print(" -> " + indexLPoint + "__" + lPoint.x + " | -> " + i + "__" + points.elementAt(i).x + " | -> " + indexRPoint + "__" + rPoint.x);
+                    System.out.println( crossProduct(lPoint, points.elementAt(i), rPoint) );*/
+
+                    if( crossProduct(lPoint, points.elementAt(i), rPoint) )
+                        upSide.add( points.elementAt(i) );
+                    else
+                        downSide.add( points.elementAt(i) );
+                }
+            }
+
+            for(int i=0; i < upSide.size(); ++i){
+                System.out.println(" up " + upSide.elementAt(i).x );
+            }
+
+            for(int i=0; i < downSide.size(); ++i){
+                System.out.println(" down " + downSide.elementAt(i).x );
+            }
+
+            findHull(upSide, rPoint, lPoint);
+            findHull(downSide, rPoint, lPoint);
         }
-
-
 
 
         /*
@@ -85,25 +114,86 @@ class Algorithmes {
         return segments;
     }
 
-    static Point theLeftPoint(Vector<Point> listePoints){
-        Point leftPoint = listePoints.elementAt(0);
+    static void findHull(Vector<Point> listePoint, Point pOne, Point pTwo){
+
+        if( listePoint.isEmpty() ) return;
+
+        double demi_p;
+        double aire;
+        double sideOne;
+        double sideTwo;
+        double base = distanceTwoPts(pOne, pTwo);
+        double length;
+        double maxLen = -1;
+        int indexP_MaxLen = 0;
+
+        for(int i=0; i < listePoint.size(); ++i){
+            sideOne = distanceTwoPts(pOne, listePoint.elementAt(i));
+            sideTwo = distanceTwoPts(pTwo, listePoint.elementAt(i));
+
+            demi_p = ( sideOne + sideTwo + base ) / 2;
+            aire = Math.sqrt( demi_p*
+                                    (demi_p - base)
+                                    *(demi_p - sideOne)
+                                    *(demi_p - sideTwo) );
+
+            length = ( aire / ( base/2) );
+            if( length > maxLen ){
+                maxLen = length;
+                indexP_MaxLen = i;
+            }
+
+            System.out.println( listePoint.elementAt(i).x + " -> " + length );
+        }
+
+        System.out.println( indexP_MaxLen );
+
+
+
+        /*
+
+        S = 1/2 * Base * Hauteur
+
+        Hauteur = S / ( Base / 2 )
+
+        S = Racine( p( p - a )( p - b )( p - c ) )
+
+        p = (a + b + c)/2
+
+        ab = Racine( ( xb - xa)² + (yb - ya)² )
+
+         */
+
+
+
+    }
+
+    static double distanceTwoPts(Point pOne, Point pTwo){
+        return Math.sqrt( Math.pow((pTwo.x - pOne.x), 2) + Math.pow((pTwo.y - pOne.y), 2) );
+    }
+
+    static int theLeftPoint(Vector<Point> listePoints){
+        int leftPoint = 0;
 
         for(int i=1; i < listePoints.size(); ++i)
-            if( listePoints.elementAt(i).x < leftPoint.x )
-                leftPoint = listePoints.elementAt(i);
+            if( listePoints.elementAt(i).x < listePoints.elementAt(leftPoint).x )
+                leftPoint = i;
 
         return leftPoint;
     }
 
-    static Point theRightPoint(Vector<Point> listePoints){
-        Point rightPoint = listePoints.elementAt(0);
+    static int theRightPoint(Vector<Point> listePoints){
+        int rightPoint = 0;
 
         for(int i=1; i < listePoints.size(); ++i)
-            if( listePoints.elementAt(i).x > rightPoint.x )
-                rightPoint = listePoints.elementAt(i);
+            if( listePoints.elementAt(i).x > listePoints.elementAt(rightPoint).x )
+                rightPoint = i;
 
         return rightPoint;
     }
+
+
+
 
     /** Retourne un nombre aleatoire entre 0 et n-1. */
     static int rand(int n)
@@ -179,7 +269,6 @@ class Algorithmes {
 
         return finalList;
     }
-
 
     static boolean crossProduct(Point pointOne, Point pointTwo, Point pointThree){
         double vecOne_x;
