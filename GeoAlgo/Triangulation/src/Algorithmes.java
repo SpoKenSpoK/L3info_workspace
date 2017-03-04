@@ -39,8 +39,7 @@ class Algorithmes {
 
 
     static Vector<Segment> quickHull(Vector<Point> points){
-        Vector<Segment> segments = new Vector<>();
-        Vector<Point> pConvexe = new Vector<>();
+        Vector<Segment> pConvexe = new Vector<>();
 
         if(points.size() > 2){
             int indexLPoint = theLeftPoint(points);
@@ -49,23 +48,19 @@ class Algorithmes {
             Point lPoint = points.elementAt( indexLPoint );
             Point rPoint = points.elementAt( indexRPoint );
 
-            pConvexe.addElement(lPoint);
-            pConvexe.addElement(rPoint);
-
-            Vector<Point> upSide = new Vector<>();
-            Vector<Point> downSide = new Vector<>();
             Vector<Point> pointsMinusTwo = new Vector<>(points);
 
             pointsMinusTwo.remove(lPoint);
             pointsMinusTwo.remove(rPoint);
 
-            cutInTwoPart(pointsMinusTwo, upSide, downSide, lPoint, rPoint);
+            Vector<Point> upSide = cutInTwoPart(pointsMinusTwo, lPoint, rPoint);
+            Vector<Point> downSide = cutInTwoPart(pointsMinusTwo, rPoint, lPoint);
 
-            findHullFromUp(pConvexe, upSide, rPoint, lPoint);
-            findHullFromDown(pConvexe, downSide, rPoint, lPoint);
+            findHull(pConvexe, upSide, lPoint, rPoint);
+            findHull (pConvexe, downSide, rPoint, lPoint);
         }
 
-        return segments;
+        return pConvexe;
     }
 
     static Point farthestPoint(Vector<Point> points, Point pOne, Point pTwo){
@@ -99,56 +94,40 @@ class Algorithmes {
                 maxHeight = height;
                 maxHeightPoint = points.elementAt(i);
             }
-
-            System.out.println( points.elementAt(i).x + " -> " + height );
         }
         return maxHeightPoint;
     }
 
-    static void findHullFromDown(Vector<Point> pConvexe, Vector<Point> listePoint, Point pOne, Point pTwo){
-        if( listePoint.isEmpty() ) return;
-        Point maxHeightPoint = farthestPoint(listePoint, pOne, pTwo);
-        pConvexe.add( maxHeightPoint );
-
-        Vector<Point> upSide = new Vector<>();
-        Vector<Point> downSide = new Vector<>();
-        Vector<Point> pointsMinusThree = new Vector<>(listePoint);
-
-        pointsMinusThree.remove(pOne);
-        pointsMinusThree.remove(pTwo);
-        pointsMinusThree.remove(maxHeightPoint);
-
-    }
-
-    static void findHullFromUp(Vector<Point> pConvexe, Vector<Point> listePoint, Point pOne, Point pTwo){
-        if( listePoint.isEmpty() ) return;
-        Point maxHeightPoint = farthestPoint(listePoint, pOne, pTwo);
-        pConvexe.add( maxHeightPoint );
-
-        Vector<Point> upSide = new Vector<>();
-        Vector<Point> downSide = new Vector<>();
-        Vector<Point> pointsMinusThree = new Vector<>(listePoint);
-
-        pointsMinusThree.remove(pOne);
-        pointsMinusThree.remove(pTwo);
-        pointsMinusThree.remove(maxHeightPoint);
-
-
-    }
-
-    static void cutInTwoPart(Vector<Point> points, Vector<Point> sideOne, Vector<Point> sideTwo, Point leftPoint, Point rightPoint){
-        sideOne.clear();
-        sideTwo.clear();
-
-        for(int i=0; i < points.size(); ++i){
-
-            System.out.println( points.elementAt(i).x + " -> " + crossProduct(leftPoint, points.elementAt(i), rightPoint) );
-
-            if( crossProduct(leftPoint, points.elementAt(i), rightPoint) )
-                sideOne.add( points.elementAt(i) );
-            else
-                sideTwo.add( points.elementAt(i) );
+    static void findHull(Vector<Segment> pConvexe, Vector<Point> points, Point pOne, Point pTwo){
+        if( points.size() < 1 ){
+            pConvexe.add( new Segment(pTwo, pOne) );
+            return;
         }
+
+        Point maxHeightPoint = farthestPoint(points, pOne, pTwo);
+
+        Vector<Point> pointsMinusThree = new Vector<>(points);
+
+        pointsMinusThree.remove(pOne);
+        pointsMinusThree.remove(pTwo);
+        pointsMinusThree.remove(maxHeightPoint);
+
+        Vector<Point> upSide = cutInTwoPart(pointsMinusThree, pOne, maxHeightPoint);
+        Vector<Point> downSide = cutInTwoPart(pointsMinusThree, maxHeightPoint, pTwo);
+
+        findHull(pConvexe, upSide, pOne, maxHeightPoint);
+        findHull(pConvexe, downSide, maxHeightPoint, pTwo);
+    }
+
+    static Vector<Point> cutInTwoPart(Vector<Point> inPut, Point leftPoint, Point rightPoint){
+
+        Vector<Point> outPut = new Vector<>();
+        for(int i=0; i < inPut.size(); ++i){
+            if( crossProduct(leftPoint, inPut.elementAt(i), rightPoint) )
+                outPut.add( inPut.elementAt(i) );
+        }
+
+        return outPut;
     }
 
     static double distanceTwoPts(Point pOne, Point pTwo){
@@ -174,8 +153,6 @@ class Algorithmes {
 
         return rightPoint;
     }
-
-
 
 
     /** Retourne un nombre aleatoire entre 0 et n-1. */

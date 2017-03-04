@@ -35,11 +35,11 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
         JButton rand = new JButton("Rand");
 
 
-        // Action du bouton Rand
+        // Action du bouton EnveloppeConvexe
         envConvexe.addActionListener( new ActionListener(){
                                     public void actionPerformed(ActionEvent evt) {
                                         // Suppression des points et des segments
-                                        canvas.points.removeAllElements();
+                                        //canvas.points.removeAllElements();
                                         canvas.segments.removeAllElements();
 
                                         enveloppeConvexe = true;
@@ -269,8 +269,9 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
     /** Lance l'algorithme sur l'ensemble de points. */
     public void calculer()
     {
-        if( !ZoneSaisirPointsAfficherSegments.enveloppeConvexe )
-            segments = Algorithmes.algorithme1(points);
+        if( !ZoneSaisirPointsAfficherSegments.enveloppeConvexe ){
+            //segments = Algorithmes.algorithme1(points);
+        }
         else
             segments = Algorithmes.quickHull(points);
     }
