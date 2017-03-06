@@ -1,0 +1,142 @@
+# Lignes commençant par dièse -> Commentaires
+################################################################################
+# Grammaire non ambigüe, non recursive et factorisée à gauche du langage L
+#
+# Conventions : symboles terminaux entre 'apostrophes' ou 100% MAJUSCULES
+#               symboles non terminaux commencent par lettre minuscule
+#               symbole initial (axiome) à gauche de la première production
+#               productions ont la forme nonTerminal -> seq1 | seq2 |...| seqN
+#               production vide représentée par barre verticale à la fin
+#               espaces obligatoires entre symboles, flèche -> et alternative |
+################################################################################
+
+programme -> optDecVariables listeDecFonctions
+
+################################################################################
+# Liste de déclaration de variables (ou paramètres d'une fonction)
+################################################################################
+
+optDecVariables -> listeDecVariables ';'
+                 | 
+
+listeDecVariables -> declarationVariable listeDecVariablesBis
+
+listeDecVariablesBis -> ',' declarationVariable listeDecVariablesBis
+                      |
+
+declarationVariable -> ENTIER ID_VAR optTailleTableau
+
+optTailleTableau -> '[' NOMBRE ']'
+                  | 
+
+listeDecFonctions -> declarationFonction listeDecFonctions 
+                   | 
+
+declarationFonction -> ID_FCT listeParam optDecVariables instructionBloc
+
+listeParam -> '(' optListeDecVariables ')'
+
+optListeDecVariables -> listeDecVariables
+                      |
+              
+################################################################################
+# Instructions dans le corps d'une fonction (bloc)
+################################################################################
+
+instruction -> instructionAffect  
+             | instructionBloc 
+             | instructionSi 
+             | instructionTantque 
+             | instructionAppel 
+             | instructionRetour 
+             | instructionEcriture 
+             | instructionVide
+ 
+instructionAffect -> var '=' expression ';'
+
+instructionBloc -> '{' listeInstructions '}'
+
+listeInstructions -> instruction listeInstructions
+                   | 
+
+instructionAppel -> appelFct ';'
+
+instructionSi -> SI expression ALORS instructionBloc optSinon
+
+optSinon -> SINON instructionBloc
+          |
+
+instructionTantque -> TANTQUE expression FAIRE instructionBloc
+
+instructionRetour -> RETOUR expression ';'
+
+instructionEcriture -> ECRIRE '(' expression ')' ';'
+
+instructionVide -> ';'
+
+################################################################################
+# Expressions (booléennes, arithmétiques) avec implémentation des priorités.
+# Ordre croissant de priorités comme suit (le | a la plus petite priorité):
+# 7. | (ou) 
+# 6. & (et)
+# 5. < =
+# 4. + - 
+# 3. * / 
+# 2. ! (non)
+# 1. (expression) appelFct var[expression]
+################################################################################
+
+expression -> conjonction expressionBis
+
+expressionBis -> '|' conjonction expressionBis
+               | 
+
+conjonction -> comparaison conjonctionBis
+
+conjonctionBis -> '&' comparaison conjonctionBis
+                |
+           
+comparaison -> expArith comparaisonBis
+               
+comparaisonBis -> '=' expArith comparaisonBis 
+                | '<' expArith comparaisonBis
+                |
+
+expArith -> terme expArithBis
+            
+expArithBis -> '+' terme expArithBis
+             | '-' terme expArithBis
+             |               
+
+terme -> negation termeBis
+         
+termeBis -> '*' negation termeBis
+          | '/' negation termeBis
+          |
+          
+negation -> '!' negation
+          | facteur
+
+
+facteur -> '(' expression ')' 
+         | NOMBRE 
+         | appelFct 
+         | var
+         | LIRE '(' ')' 
+
+################################################################################
+# Accès à une variable, case d'un tableau ou appel à fonction
+################################################################################
+
+var -> ID_VAR optIndice
+
+optIndice -> '[' expression ']' 
+           | 
+
+appelFct -> ID_FCT '(' listeExpressions ')'
+
+listeExpressions -> expression listeExpressionsBis
+                  | 
+
+listeExpressionsBis -> ',' expression listeExpressionsBis
+                     | 
