@@ -11,31 +11,32 @@
 int uniteCourante;
 char buff[1024];
 char val[1024];
+int showXML = 1;
 
 void readToken(){
     nom_token(uniteCourante, buff, val);
-    affiche_element(buff, val, 1);
+    affiche_element(buff, val, showXML);
     uniteCourante = yylex();
 }
 
 void programme( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _optDecVariables_) || est_premier(uniteCourante, _listeDecFonctions_) ){
         optDecVariables();
         listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _programme_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void optDecVariables( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _listeDecVariables_) ){
         listeDecVariables();
@@ -43,17 +44,17 @@ void optDecVariables( void ){
         readToken();
     }
     else if( est_suivant(uniteCourante, _optDecVariables_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 
 void listeDecVariables( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _declarationVariable_) ){
         declarationVariable();
@@ -61,11 +62,11 @@ void listeDecVariables( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeDecVariablesBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
         readToken();
@@ -73,16 +74,16 @@ void listeDecVariablesBis( void ){
         listeDecVariablesBis();
     }
     else if( est_suivant(uniteCourante, _listeDecVariablesBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void declarationVariable( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ENTIER ) erreur(__FUNCTION__);
     readToken();
@@ -91,12 +92,12 @@ void declarationVariable( void ){
 
     optTailleTableau();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void optTailleTableau( void ){
 
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == CROCHET_OUVRANT ){
         readToken();
@@ -107,33 +108,33 @@ void optTailleTableau( void ){
     }
 
     else if( est_suivant(uniteCourante, _optTailleTableau_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeDecFonctions( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _declarationFonction_) ){
         declarationFonction();
         listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _listeDecFonctions_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void declarationFonction( void ){
 
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ID_FCT ) erreur(__FUNCTION__);
 
@@ -143,11 +144,11 @@ void declarationFonction( void ){
     optDecVariables();
     instructionBloc();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeParam( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
 
@@ -158,26 +159,26 @@ void listeParam( void ){
 
     readToken();
 
-    affiche_balise_fermante(__FUNCTION__,1);
+    affiche_balise_fermante(__FUNCTION__,showXML);
 }
 
 void optListeDecVariables( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _listeDecVariables_) ){
         listeDecVariables();
     }
     else if( est_suivant(uniteCourante, _optListeDecVariables_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instruction( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == FAIRE ){ instructionFaire(); }
     else if( est_premier(uniteCourante, _instructionAffect_) ){ instructionAffect(); }
@@ -190,11 +191,11 @@ void instruction( void ){
     else if( est_premier(uniteCourante, _instructionVide_)){ instructionVide(); }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionFaire( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
     readToken();
     instructionBloc();
     if( uniteCourante != TANTQUE ) erreur(__FUNCTION__);
@@ -202,22 +203,22 @@ void instructionFaire( void ){
     expression();
     if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
     readToken();
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionAffect( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
     if( est_premier(uniteCourante, _var_) ) var();
     if( uniteCourante != EGAL ) erreur(__FUNCTION__);
     readToken();
     expression();
     if(uniteCourante != POINT_VIRGULE) erreur(__FUNCTION__);
     readToken();
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionBloc( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if(uniteCourante != ACCOLADE_OUVRANTE) erreur(__FUNCTION__);
 
@@ -228,27 +229,27 @@ void instructionBloc( void ){
 
     readToken();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeInstructions( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _instruction_) ){
         instruction();
         listeInstructions();
     }
     else if( est_suivant(uniteCourante, _listeInstructions_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionSi( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
     if( uniteCourante != SI ) erreur(__FUNCTION__);
     readToken();
     expression();
@@ -258,27 +259,27 @@ void instructionSi( void ){
     instructionBloc();
     optSinon();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void optSinon( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == SINON ){
         readToken();
         instructionBloc();
     }
     else if( est_suivant( uniteCourante, _optSinon_ )){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionTantque( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == TANTQUE ){
         readToken();
@@ -291,11 +292,11 @@ void instructionTantque( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionAppel( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _appelFct_) ){
         appelFct();
@@ -304,22 +305,22 @@ void instructionAppel( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionRetour( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != RETOUR ) erreur(__FUNCTION__);
     readToken();
     expression();
     if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
     readToken();
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionEcriture( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ECRIRE ) erreur(__FUNCTION__);
     readToken();
@@ -334,33 +335,33 @@ void instructionEcriture( void ){
     if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
     readToken();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void instructionVide( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != POINT_VIRGULE )
      erreur(__FUNCTION__);
 
     readToken();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void expression( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier( uniteCourante, _conjonction_) ){
         conjonction();
         expressionBis();
     } else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void expressionBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == OU ){
         readToken();
@@ -368,16 +369,16 @@ void expressionBis( void ){
         expressionBis();
     }
     else if( est_suivant(uniteCourante, _expressionBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void conjonction( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _comparaison_) ){
         comparaison();
@@ -385,11 +386,11 @@ void conjonction( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void conjonctionBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ET ){
         readToken();
@@ -397,16 +398,16 @@ void conjonctionBis( void ){
         conjonctionBis();
     }
     else if( est_suivant(uniteCourante, _conjonctionBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void comparaison( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expArith_) ){
         expArith();
@@ -414,11 +415,11 @@ void comparaison( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void comparaisonBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == EGAL || uniteCourante == INFERIEUR ){
         readToken();
@@ -426,16 +427,16 @@ void comparaisonBis( void ){
         comparaisonBis();
     }
     else if( est_suivant(uniteCourante, _comparaisonBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void expArith( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _terme_) ){
         terme();
@@ -443,11 +444,11 @@ void expArith( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void expArithBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == PLUS || uniteCourante == MOINS ){
         readToken();
@@ -455,17 +456,17 @@ void expArithBis( void ){
         expArithBis();
     }
     else if( est_suivant(uniteCourante, _expArithBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void terme( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _negation_) ){
         negation();
@@ -473,11 +474,11 @@ void terme( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void termeBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == FOIS || uniteCourante == DIVISE ){
         readToken();
@@ -485,16 +486,16 @@ void termeBis( void ){
         termeBis();
     }
     else if( est_suivant(uniteCourante, _termeBis_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void negation( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == NON ){
         readToken();
@@ -505,11 +506,11 @@ void negation( void ){
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void facteur( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == PARENTHESE_OUVRANTE ){
         readToken();
@@ -519,7 +520,7 @@ void facteur( void ){
     }
     else if( uniteCourante == NOMBRE ){
         readToken();
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else if( uniteCourante == LIRE ){
@@ -533,21 +534,21 @@ void facteur( void ){
     else if( est_premier(uniteCourante, _appelFct_) ) appelFct();
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void var( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
     readToken();
     optIndice();
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void optIndice( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == CROCHET_OUVRANT ){
         readToken();
@@ -558,16 +559,16 @@ void optIndice( void ){
         readToken();
     }
     else if( est_suivant(uniteCourante, _optIndice_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void appelFct( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ID_FCT ){
         readToken();
@@ -579,32 +580,32 @@ void appelFct( void ){
         } else erreur(__FUNCTION__);
     }
     else if( est_suivant(uniteCourante, _appelFct_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeExpressions( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expression_) ){
         expression();
         listeExpressionsBis();
     }
     else if( est_suivant(uniteCourante, _listeExpressions_) ){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void listeExpressionsBis( void ){
-    affiche_balise_ouvrante(__FUNCTION__, 1);
+    affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
         readToken();
@@ -612,12 +613,12 @@ void listeExpressionsBis( void ){
         listeExpressionsBis();
     }
     else if( est_suivant(uniteCourante, _listeExpressionsBis_)){
-        affiche_balise_fermante(__FUNCTION__, 1);
+        affiche_balise_fermante(__FUNCTION__, showXML);
         return;
     }
     else erreur(__FUNCTION__);
 
-    affiche_balise_fermante(__FUNCTION__, 1);
+    affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
 void test_syntaxique(FILE *yyin) {

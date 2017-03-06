@@ -221,4 +221,3 @@ n_l_dec *cree_n_l_dec(n_dec *tete, n_l_dec *queue)
   n->queue = queue;
   return n;
 }
-

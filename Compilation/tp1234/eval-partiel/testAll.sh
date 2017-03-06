@@ -31,7 +31,7 @@
 
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
 
-MYCOMPILO="/home/spoken/Git/L3info_workspace/Compilation/compilo"
+MYCOMPILO="/home/spoken/Git/L3info_workspace/Compilation/tp1234/compilo"
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
