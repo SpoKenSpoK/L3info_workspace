@@ -401,34 +401,50 @@ n_instr* instructionVide( void ){
 }
 
 n_exp* expression( void ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier( uniteCourante, _conjonction_) ){
-        conjonction();
-        expressionBis();
+        _expOne = conjonction();
+        _expTwo = expressionBis(_expOne);
     } else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expTwo;
 }
 
-void expressionBis( void ){
+n_exp* expressionBis( n_exp* herite ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _expThree;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == OU ){
         readToken();
-        conjonction();
-        expressionBis();
+        _expOne = conjonction();
+        _expTwo = expressionBis();
+        _expThree = cree_n_exp_op(ou, n_exp *op1, n_exp *op2)
     }
     else if( est_suivant(uniteCourante, _expressionBis_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        _expThree = herite;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expThree;
 }
 
-void conjonction( void ){
+n_exp* conjonction( void ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _extThree;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _comparaison_) ){
@@ -438,6 +454,8 @@ void conjonction( void ){
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return ;
 }
 
 void conjonctionBis( void ){
