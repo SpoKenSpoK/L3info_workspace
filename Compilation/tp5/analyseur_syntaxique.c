@@ -293,20 +293,24 @@ n_instr* instructionSi( void ){
     return _instrThree;
 }
 
-void optSinon( void ){
+n_instr* optSinon( void ){
+    n_instr* _instrOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == SINON ){
         readToken();
-        instructionBloc();
+        _instrOne = instructionBloc();
     }
     else if( est_suivant( uniteCourante, _optSinon_ )){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _instrOne;
 }
 
 n_instr* instructionTantque( void ){
@@ -362,7 +366,7 @@ n_instr* instructionRetour( void ){
     return cree_n_instr_retour(_expOne);
 }
 
-void instructionEcriture( void ){
+n_instr* instructionEcriture( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ECRIRE ) erreur(__FUNCTION__);
@@ -370,7 +374,7 @@ void instructionEcriture( void ){
 
     if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
     readToken();
-    expression();
+    n_exp* _expOne = expression();
 
     if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
     readToken();
@@ -379,9 +383,11 @@ void instructionEcriture( void ){
     readToken();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_instr_ecrire(_expOne);
 }
 
-void instructionVide( void ){
+n_instr* instructionVide( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != POINT_VIRGULE )
@@ -390,9 +396,11 @@ void instructionVide( void ){
     readToken();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_instr_vide(void);
 }
 
-void expression( void ){
+n_exp* expression( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier( uniteCourante, _conjonction_) ){
