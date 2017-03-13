@@ -38,6 +38,8 @@ class Algorithmes {
     }
 
 
+
+
     static Vector<Segment> quickHull(Vector<Point> points){
         Vector<Segment> pConvexe = new Vector<>();
 

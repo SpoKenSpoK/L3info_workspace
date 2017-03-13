@@ -1,7 +1,8 @@
 #ifndef __ANALYSEUR_SYNTAXIQUE__
 #define __ANALYSEUR_SYNTAXIQUE__
 
-#include "stdio.h"
+#include <stdio.h>
+#include "syntabs.h"
 
 void readToken();
 void programme();
@@ -16,10 +17,10 @@ void declarationFonction();
 void listeParam();
 void optListeDecVariables();
 void instruction();
-void instructionFaire();
+n_instr* instructionFaire();
 void instructionAffect();
 void instructionBloc();
-void instructionSi();
+n_instr* instructionSi();
 void instructionTantque();
 void instructionAppel();
 void instructionRetour();
@@ -35,9 +36,9 @@ void comparaisonBis();
 void expArith();
 void expArithBis();
 void terme();
-void termeBis();
-void negation();
-void facteur();
+n_exp* termeBis(n_exp* );
+n_exp* negation();
+n_exp* facteur();
 void var();
 void optIndice();
 void appelFct();

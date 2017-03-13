@@ -36,7 +36,7 @@ n_dec *cree_n_dec_fonc(char *nom, n_l_dec *param, n_l_dec *variables, n_instr *c
 
 /*-------------------------------------------------------------------------*/
 
-typedef enum {plus, moins, fois, divise, modulo, egal, diff, inf, sup, infeg, supeg, ou, et, non, negatif} operation; 
+typedef enum {plus, moins, fois, divise, modulo, egal, diff, inf, sup, infeg, supeg, ou, et, non, negatif} operation;
 
 /* typedef enum {plus, moins, fois, divise, egal, diff, inf, infeg, ou, et, variable, entier} operation; */
 struct n_exp_ {
@@ -89,7 +89,7 @@ n_instr *cree_n_instr_vide(void);
 
 /*-------------------------------------------------------------------------*/
 struct n_appel_{
-  char *fonction; 
+  char *fonction;
   n_l_exp *args;
 };
 
