@@ -179,21 +179,25 @@ void optListeDecVariables( void ){
     affiche_balise_fermante(__FUNCTION__, showXML);
 }
 
-void instruction( void ){
+n_instr* instruction( void ){
+    n_instr* _instrOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
-    if( uniteCourante == FAIRE ){ instructionFaire(); }
-    else if( est_premier(uniteCourante, _instructionAffect_) ){ instructionAffect(); }
-    else if( est_premier(uniteCourante, _instructionBloc_)){ instructionBloc(); }
-    else if( est_premier(uniteCourante, _instructionSi_)){ instructionSi(); }
-    else if( est_premier(uniteCourante, _instructionTantque_)){ instructionTantque(); }
-    else if( est_premier(uniteCourante, _instructionAppel_)){ instructionAppel(); }
-    else if( est_premier(uniteCourante, _instructionRetour_)){ instructionRetour(); }
-    else if( est_premier(uniteCourante, _instructionEcriture_)){ instructionEcriture(); }
-    else if( est_premier(uniteCourante, _instructionVide_)){ instructionVide(); }
+    if( uniteCourante == FAIRE ){ _instrOne = instructionFaire(); }
+    else if( est_premier(uniteCourante, _instructionAffect_) ){     _instrOne = instructionAffect();    }
+    else if( est_premier(uniteCourante, _instructionBloc_)){        _instrOne = instructionBloc();      }
+    else if( est_premier(uniteCourante, _instructionSi_)){          _instrOne = instructionSi();        }
+    else if( est_premier(uniteCourante, _instructionTantque_)){     _instrOne = instructionTantque();   }
+    else if( est_premier(uniteCourante, _instructionAppel_)){       _instrOne = instructionAppel();     }
+    else if( est_premier(uniteCourante, _instructionRetour_)){      _instrOne = instructionRetour();    }
+    else if( est_premier(uniteCourante, _instructionEcriture_)){    _instrOne = instructionEcriture();  }
+    else if( est_premier(uniteCourante, _instructionVide_)){        _instrOne = instructionVide();      }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _instrOne;
 }
 
 n_instr* instructionFaire( void ){
@@ -209,15 +213,23 @@ n_instr* instructionFaire( void ){
 
     if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
     readToken();
+
+
+    n_instr* _expFinal = cree_n_instr_faire(_instrOne, _expOne);
+    //affiche_exp(_expFinal);
+
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return cree_n_instr_faire(_instrOne, _expOne);
+    return _expFinal;
 }
 
 n_instr* instructionAffect( void ){
+    n_var* _variable;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
     if( est_premier(uniteCourante, _var_) )
-        n_var* _variable = var();
+        _variable = var();
+
 
     if( uniteCourante != EGAL ) erreur(__FUNCTION__);
     readToken();
@@ -228,7 +240,9 @@ n_instr* instructionAffect( void ){
     readToken();
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return cree_n_instr_affect(_variable, _expOne);
+    n_instr* _expFinal = cree_n_instr_affect(_variable, _expOne);
+
+    return _expFinal;
 }
 
 n_instr* instructionBloc( void ){
@@ -271,8 +285,8 @@ n_l_instr* listeInstructions( void ){
 
 n_instr* instructionSi( void ){
     n_instr* _instrOne;
-    n_instr* _instTwo;
-    n_instr* _instThree;
+    n_instr* _instrTwo;
+    n_instr* _instrThree;
     n_exp* _expOne;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
@@ -329,11 +343,12 @@ n_instr* instructionTantque( void ){
             }
             else erreur(__FUNCTION__);
     }
-    else erreur(__FUNCTION__);
+    else
+        erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return cree_n_instr_tantque(_expOne _instrBloc);
+    return cree_n_instr_tantque(_expOne, _instrBloc);
 }
 
 n_instr* instructionAppel( void ){
@@ -397,7 +412,7 @@ n_instr* instructionVide( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return cree_n_instr_vide(void);
+    return cree_n_instr_vide();
 }
 
 n_exp* expression( void ){
@@ -426,11 +441,10 @@ n_exp* expressionBis( n_exp* herite ){
     if( uniteCourante == OU ){
         readToken();
         _expOne = conjonction();
-        _expTwo = expressionBis();
-        _expThree = cree_n_exp_op(ou, n_exp *op1, n_exp *op2)
+        _expTwo = cree_n_exp_op(ou, herite, _expOne);
+        _expThree = expressionBis(_expTwo);
     }
     else if( est_suivant(uniteCourante, _expressionBis_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
         _expThree = herite;
     }
     else erreur(__FUNCTION__);
@@ -443,172 +457,211 @@ n_exp* expressionBis( n_exp* herite ){
 n_exp* conjonction( void ){
     n_exp* _expOne;
     n_exp* _expTwo;
-    n_exp* _extThree;
+    n_exp* _expThree;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _comparaison_) ){
-        comparaison();
-        conjonctionBis();
+        _expOne = comparaison();
+        _expTwo = conjonctionBis(_expOne);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+    _expThree = cree_n_exp_op(et, _expOne, _expTwo);
 
-    return ;
+    return _expThree;
 }
 
-void conjonctionBis( void ){
+n_exp* conjonctionBis( n_exp* herite ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _expThree;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ET ){
         readToken();
-        comparaison();
-        conjonctionBis();
+        _expOne = comparaison();
+        _expTwo = cree_n_exp_op(et, herite, _expOne);
+        _expThree = conjonctionBis(_expTwo);
     }
     else if( est_suivant(uniteCourante, _conjonctionBis_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        _expThree = herite;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expThree;
 }
 
-void comparaison( void ){
+n_exp* comparaison( void ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expArith_) ){
-        expArith();
-        comparaisonBis();
+        _expOne = expArith();
+        _expTwo = comparaisonBis(_expOne);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expTwo;
 }
 
-void comparaisonBis( void ){
+n_exp* comparaisonBis( n_exp* herite ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _expThree;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
-    if( uniteCourante == EGAL || uniteCourante == INFERIEUR ){
+    if( uniteCourante == EGAL ){
         readToken();
-        expArith();
-        comparaisonBis();
+        _expOne = expArith();
+        _expTwo = cree_n_exp_op(egal, herite, _expOne);
+        _expThree = comparaisonBis(_expTwo);
     }
-    else if( est_suivant(uniteCourante, _comparaisonBis_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+    else if( uniteCourante == INFERIEUR ){
+        readToken();
+        _expOne = expArith();
+        _expTwo = cree_n_exp_op(inf, herite, _expOne);
+        _expThree = comparaisonBis(_expTwo);
     }
+    else if( est_suivant(uniteCourante, _comparaisonBis_) ) _expThree = herite;
+
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expThree;
 }
 
-void expArith( void ){
+n_exp* expArith( void ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _terme_) ){
-        terme();
-        expArithBis();
+        _expOne = terme();
+        _expTwo = expArithBis(_expOne);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expTwo;
 }
 
-void expArithBis( void ){
+n_exp* expArithBis( n_exp* herite ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _expThree;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
-    if( uniteCourante == PLUS || uniteCourante == MOINS ){
+    if( uniteCourante == PLUS ){
         readToken();
-        terme();
-        expArithBis();
+        _expOne = terme();
+        _expTwo = cree_n_exp_op(plus, herite, _expOne);
+        _expThree = expArithBis(_expTwo);
     }
-    else if( est_suivant(uniteCourante, _expArithBis_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+    else if( uniteCourante == MOINS ){
+        readToken();
+        _expOne = terme();
+        _expTwo = cree_n_exp_op(moins, herite, _expOne);
+        _expThree = expArithBis(_expTwo);
     }
+    else if( est_suivant(uniteCourante, _expArithBis_) ) _expThree = herite;
     else erreur(__FUNCTION__);
 
-
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expThree;
 }
 
-void terme( void ){
+n_exp* terme( void ){
+    n_exp* _expOne;
+    n_exp* _expTwo;
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _negation_) ){
-        negation();
-        termeBis();
+        _expOne = negation();
+        _expTwo = termeBis(_expOne);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _expTwo;
 }
 
 n_exp* termeBis( n_exp* herite ){
-    n_exp* _two;
-    n_exp* _one;
-    n_exp* herite_fils;
+    n_exp* _expOne;
+    n_exp* _expTwo;
+    n_exp* _expThree;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == FOIS ){
         readToken();
-        _two = negation();
-        herite_fils = cree_n_exp_op(fois, herite, _two);
-        _one = termeBis(herite_fils);
+        _expOne = negation();
+        _expTwo = cree_n_exp_op(fois, herite, _expOne);
+        _expThree = termeBis(_expTwo);
     }
     else if( uniteCourante == DIVISE ){
         readToken();
-        _two = negation();
-        herite_fils = cree_n_exp_op(divise, herite, _two);
-        _one = termeBis(herite_fils);
+        _expOne = negation();
+        _expTwo = cree_n_exp_op(divise, herite, _expOne);
+        _expThree = termeBis(_expTwo);
 
     }
-    else if( est_suivant(uniteCourante, _termeBis_) ) _one = herite;
+    else if( est_suivant(uniteCourante, _termeBis_) ) _expThree = herite;
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return _one;
+    return _expThree;
 }
 
 n_exp* negation( void ){
-    n_exp* _one;
+    n_exp* _expOne;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == NON ){
         readToken();
-        _one = negation();
+        _expOne = negation();
     }
-    else if( est_premier(uniteCourante, _facteur_) ){
-        _one = facteur();
-    }
+    else if( est_premier(uniteCourante, _facteur_) ) _expOne = facteur();
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return _one;
+    return _expOne;
 }
 
 n_exp* facteur( void ){
-    n_exp* _one;
+    n_exp* _expOne;
+    n_var* _variable;
+    n_appel* _appel;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == PARENTHESE_OUVRANTE ){
         readToken();
-        _one = expression();
+        _expOne = expression();
         if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
         readToken();
     }
     else if( uniteCourante == NOMBRE ){
         readToken();
-        //affiche_balise_fermante(__FUNCTION__, showXML);
-        //return;
-        _one = cree_n_exp_entier(atoi(val));
+        _expOne = cree_n_exp_entier(atoi(val));
     }
     else if( uniteCourante == LIRE ){
         readToken();
@@ -617,47 +670,53 @@ n_exp* facteur( void ){
         if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
         readToken();
 
-        _one = cree_n_exp_lire();
+        _expOne = cree_n_exp_lire();
     }
     else if( est_premier(uniteCourante, _var_) ){
-        n_var* _variable = var();
-        _one = cree_n_exp_var(_variable);
+        _variable = var();
+        _expOne = cree_n_exp_var(_variable);
     }
     else if( est_premier(uniteCourante, _appelFct_) ){
-        n_appel* _appel = appelFct();
-        _one = cree_n_exp_appel(_appel);
+        _appel = appelFct();
+        _expOne = cree_n_exp_appel(_appel);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return _one;
+    return _expOne;
 }
 
 n_var* var( void ){
+    n_var* _varOne;
+    n_exp* _expOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
+    char* varName = val; // val -> valeur du buffer qui a été lu dans un read_token() avant de rentrer dans la fonction var().
+
     readToken();
-    ???=optIndice();
+    _expOne = optIndice();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return var* ??;
+    if( _expOne != NULL )   _varOne = cree_n_var_indicee(varName, _expOne);
+    else                    _varOne = cree_n_var_simple(varName);
+
+    return _varOne;
 }
 
 
-void optIndice( void ){
-    n_exp* _one;
+n_exp* optIndice( void ){
+    n_exp* _expOne;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == CROCHET_OUVRANT ){
         readToken();
-        _one = expression();
-
+        _expOne = expression();
         if( uniteCourante != CROCHET_FERMANT ) erreur(__FUNCTION__);
-
         readToken();
     }
     else if( est_suivant(uniteCourante, _optIndice_) ){
@@ -668,18 +727,24 @@ void optIndice( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return ??;
+    return _expOne;
 }
 
 n_appel* appelFct( void ){
+    n_l_exp* _nlexpOne;
+    n_appel* _appelOne;
+    char* foncName;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ID_FCT ){
+
+        foncName = val; // où val est le nom de la fonction
+
         readToken();
         if( uniteCourante == PARENTHESE_OUVRANTE ){
             readToken();
-            n_l_exp* nl_exp = listeExpressions();
-
+             _nlexpOne = listeExpressions();
             if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
             readToken();
         } else erreur(__FUNCTION__);
@@ -692,10 +757,14 @@ n_appel* appelFct( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    return n_appel* ???;
+    _appelOne = cree_n_appel(foncName, _nlexpOne);
+    return _appelOne;
 }
 
-void listeExpressions( void ){
+n_l_exp* listeExpressions( void ){
+    n_exp* _expOne;
+    n_l_exp* _nlexpOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expression_) ){
@@ -709,9 +778,11 @@ void listeExpressions( void ){
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+
 }
 
-void listeExpressionsBis( void ){
+n_l_exp* listeExpressionsBis( n_l_exp* herite ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
