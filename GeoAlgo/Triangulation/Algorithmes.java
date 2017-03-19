@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.*;
 
 /** La classe algorithme. */
@@ -37,6 +38,50 @@ class Algorithmes {
         return segments;
     }
 
+
+    static Vector<Segment> segmentsIntersection(Vector<Point> points){
+        Vector<Segment> segments = new Vector<>();
+
+        for(int i=0; i < points.size(); i+=2){
+            if( i < points.size()-1 ){
+                Segment newSeg = new Segment( points.elementAt(i), points.elementAt(i+1) );
+                newSeg.number = i/2;
+                segments.add(newSeg);
+            }
+        }
+
+
+        findIntersections(segments);
+
+        return segments;
+    }
+
+    static void findIntersections(Vector<Segment> segments){
+
+        Vector<Segment> localSegment = new Vector<Segment>(segments);
+        List<Integer> eventList = new ArrayList<>();
+
+
+        //find handle point
+    }
+
+
+    static void findMinusY(Vector<Segment> segments){
+
+        Double actualSegment;
+        Segment minusYsegment;
+
+        for(int i=0; i < segments.size(); ++i){
+
+            if( segments.elementAt(i).a.y < segments.elementAt(i).b.y )
+                actualSegment = segments.elementAt(i).a.y;
+            else
+                actualSegment = segments.elementAt(i).b.y;
+
+
+        }
+
+    }
 
 
 

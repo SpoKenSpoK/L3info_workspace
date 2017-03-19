@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.time.ZoneId;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
     public static boolean enveloppeConvexe = false;
     public static boolean monotoneTriangulation = false;
+    public static boolean intersectionSegments = false;
 
     /** Creation de la zone d'affichage. */
     public ZoneSaisirPointsAfficherSegments()
@@ -35,7 +37,26 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
         JButton triangulation = new JButton("Triangulation Monotone");
         JButton envConvexe = new JButton("Enveloppe Conv.");
         JButton rand = new JButton("Rand");
+        JButton intersect = new JButton("Intersection de Segments");
 
+        // Action du bouton Triangulation Monotone
+        intersect.addActionListener( new ActionListener(){
+                                             public void actionPerformed(ActionEvent evt) {
+                                                 // Suppression des points et des segments
+                                                 //canvas.points.removeAllElements();
+
+                                                 //canvas.points.removeAllElements();
+                                                 canvas.segments.removeAllElements();
+
+                                                 enveloppeConvexe = false;
+                                                 monotoneTriangulation = false;
+                                                 intersectionSegments = true;
+
+                                                 canvas.calculer();
+                                                 canvas.repaint();
+                                             }
+                                         }
+        );
 
         // Action du bouton Triangulation Monotone
         triangulation.addActionListener( new ActionListener(){
@@ -47,6 +68,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
                                               enveloppeConvexe = false;
                                               monotoneTriangulation = true;
+                                              intersectionSegments = false;
 
                                               canvas.calculer();
                                               canvas.repaint();
@@ -66,6 +88,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
                                         enveloppeConvexe = true;
                                         monotoneTriangulation = false;
+                                        intersectionSegments = false;
 
                                         canvas.calculer();
                                         canvas.repaint();
@@ -82,6 +105,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
                                            enveloppeConvexe = false;
                                            monotoneTriangulation = false;
+                                           intersectionSegments = false;
 
                                            canvas.repaint();
                                        }
@@ -99,6 +123,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
 
                                         enveloppeConvexe = false;
                                         monotoneTriangulation = false;
+                                        intersectionSegments = false;
 
                                         int n = Integer.parseInt(textNombrePoint.getText());
                                         for (int i = 0; i < n; i++)
@@ -120,6 +145,7 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
         panelBoutons.add(effacer);
         panelBoutons.add(triangulation);
         panelBoutons.add(envConvexe);
+        panelBoutons.add(intersect);
         panelBoutons.add(rand);
         panelBoutons.add(textNombrePoint);
         setLayout(new BorderLayout());
@@ -206,6 +232,9 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
 
                 g.drawString(Integer.toString(p.number), (int)p.x + 30, (int)p.y + 10);
             }
+            else if( ZoneSaisirPointsAfficherSegments.intersectionSegments ){
+
+            }
             else{
                 g.drawString(Double.toString(p.x), (int)p.x-15, (int)p.y+20);
             }
@@ -223,6 +252,10 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
                 g.setColor(segmentColor);
 
             g.drawLine((int)segment.a.x,(int)segment.a.y,(int)segment.b.x,(int)segment.b.y);
+            if( ZoneSaisirPointsAfficherSegments.intersectionSegments ){
+                g.drawString(Integer.toString( segment.number ), (int)segment.a.x + 10, (int)segment.a.y + 5);
+            }
+
         }
     }
 
@@ -300,6 +333,9 @@ class CanvasSaisirPointsAfficherSegments extends JPanel implements MouseListener
         }
         else if( ZoneSaisirPointsAfficherSegments.enveloppeConvexe ){
             segments = Algorithmes.quickHull(points);
+        }
+        else if(ZoneSaisirPointsAfficherSegments.intersectionSegments ){
+            segments = Algorithmes.segmentsIntersection(points);
         }
     }
 

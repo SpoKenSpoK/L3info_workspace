@@ -10,6 +10,8 @@ public class Segment
     /** Flag permettant de connaître le type du segment : diagonale ou non */
     public boolean diagonale;
 
+    public int number;
+
     /** Constructeur avec initialisation de a et b. */
     public Segment(Point a, Point b)
     {
