@@ -9,11 +9,18 @@
 #include "util.h"
 #include "syntabs.h"
 #include "affiche_arbre_abstrait.h"
+#include "tabsymboles.h"
 
 int uniteCourante;
 char buff[1024];
 char val[1024];
 int showXML = 0;
+
+int portee;
+int adresseLocaleCourante;
+int adresseArgumentCourant;
+
+
 
 void readToken(){
     nom_token(uniteCourante, buff, val);
@@ -179,14 +186,22 @@ n_dec* declarationFonction( void ){
 
     if( uniteCourante != ID_FCT ) erreur(__FUNCTION__);
     readToken();
-    foncName = duplique_chaine(val);
 
+    entreeFonction();
+
+    foncName = duplique_chaine(val);
     _nldecOne = listeParam();
     _nldecTwo = optDecVariables();
     _instrOne = instructionBloc();
 
-    affiche_balise_fermante(__FUNCTION__, showXML);
+    if( rechercheDeclarative(foncName) < 0 ){
+        ajouteIdentificateur(foncName, P_VARIABLE_GLOBALE, T_FONCTION, tabsymboles.sommet, 0);
+    }
 
+    afficheTabsymboles();
+    sortieFonction();
+
+    affiche_balise_fermante(__FUNCTION__, showXML);
     return cree_n_dec_fonc(foncName, _nldecOne, _nldecTwo, _instrOne);
 }
 
