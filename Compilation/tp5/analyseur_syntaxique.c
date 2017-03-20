@@ -13,7 +13,7 @@
 int uniteCourante;
 char buff[1024];
 char val[1024];
-int showXML = 1;
+int showXML = 0;
 
 void readToken(){
     nom_token(uniteCourante, buff, val);
@@ -21,162 +21,212 @@ void readToken(){
     uniteCourante = yylex();
 }
 
-void programme( void ){
+n_prog* programme( void ){
+    n_l_dec* _nldecOne;
+    n_l_dec* _nldecTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _optDecVariables_) || est_premier(uniteCourante, _listeDecFonctions_) ){
-        optDecVariables();
-        listeDecFonctions();
+        _nldecOne = optDecVariables();
+        _nldecTwo = listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _programme_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_prog(_nldecOne, _nldecTwo);
 }
 
-void optDecVariables( void ){
+n_l_dec* optDecVariables( void ){
+    n_l_dec* _nldecOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _listeDecVariables_) ){
-        listeDecVariables();
+        _nldecOne = listeDecVariables();
         if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
         readToken();
     }
     else if( est_suivant(uniteCourante, _optDecVariables_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _nldecOne;
 }
 
 
-void listeDecVariables( void ){
+n_l_dec* listeDecVariables( void ){
+    n_dec* _decOne;
+    n_l_dec* _nldecOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _declarationVariable_) ){
-        declarationVariable();
-        listeDecVariablesBis();
+        _decOne = declarationVariable();
+        _nldecOne = listeDecVariablesBis(NULL);
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_l_dec(_decOne, _nldecOne);
 }
 
-void listeDecVariablesBis( void ){
+n_l_dec* listeDecVariablesBis( n_l_dec* herite ){
+    n_dec* _decOne;
+    n_l_dec* _nldecOne;
+    n_l_dec* _nldecTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
         readToken();
-        declarationVariable();
-        listeDecVariablesBis();
+        _decOne = declarationVariable();
+        _nldecOne = cree_n_l_dec(_decOne, herite);
+        _nldecTwo = listeDecVariablesBis(_nldecOne);
     }
     else if( est_suivant(uniteCourante, _listeDecVariablesBis_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _nldecTwo;
 }
 
-void declarationVariable( void ){
+n_dec* declarationVariable( void ){
+    int tailleTAB;
+    char* varName;
+    n_dec* _decOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ENTIER ) erreur(__FUNCTION__);
     readToken();
     if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
     readToken();
+    varName = duplique_chaine(val);
 
-    optTailleTableau();
+    tailleTAB = optTailleTableau();
+
+    if ( tailleTAB != 0 ){ _decOne = cree_n_dec_tab(varName, tailleTAB); }
+    else { _decOne = cree_n_dec_var(varName); }
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _decOne;
 }
 
-void optTailleTableau( void ){
+int optTailleTableau( void ){
+    int tailleTAB;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == CROCHET_OUVRANT ){
         readToken();
         if( uniteCourante != NOMBRE ) erreur(__FUNCTION__);
+        tailleTAB = atoi(val);
         readToken();
         if( uniteCourante != CROCHET_FERMANT ) erreur(__FUNCTION__);
         readToken();
     }
 
-    else if( est_suivant(uniteCourante, _optTailleTableau_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
-    }
+    else if( est_suivant(uniteCourante, _optTailleTableau_) ) tailleTAB = 0;
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+    return tailleTAB;
 }
 
-void listeDecFonctions( void ){
+n_l_dec* listeDecFonctions( void ){
+    n_dec* _decOne;
+    n_l_dec* _nldecOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _declarationFonction_) ){
-        declarationFonction();
-        listeDecFonctions();
+        _decOne = declarationFonction();
+        _nldecOne = listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _listeDecFonctions_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_l_dec(_decOne, _nldecOne);
 }
 
-void declarationFonction( void ){
+n_dec* declarationFonction( void ){
+    char* foncName;
+    n_l_dec* _nldecOne;
+    n_l_dec* _nldecTwo;
+    n_instr* _instrOne;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ID_FCT ) erreur(__FUNCTION__);
-
     readToken();
+    foncName = duplique_chaine(val);
 
-    listeParam();
-    optDecVariables();
-    instructionBloc();
+    _nldecOne = listeParam();
+    _nldecTwo = optDecVariables();
+    _instrOne = instructionBloc();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return cree_n_dec_fonc(foncName, _nldecOne, _nldecTwo, _instrOne);
 }
 
-void listeParam( void ){
+n_l_dec* listeParam( void ){
+    n_l_dec* _nldecOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != PARENTHESE_OUVRANTE ) erreur(__FUNCTION__);
 
     readToken();
-    optListeDecVariables();
+    _nldecOne = optListeDecVariables();
 
     if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
 
     readToken();
 
     affiche_balise_fermante(__FUNCTION__,showXML);
+
+    return _nldecOne;
 }
 
-void optListeDecVariables( void ){
+n_l_dec* optListeDecVariables( void ){
+    n_l_dec* _nldecOne;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _listeDecVariables_) ){
-        listeDecVariables();
+        _nldecOne = listeDecVariables();
     }
     else if( est_suivant(uniteCourante, _optListeDecVariables_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _nldecOne;
 }
 
 n_instr* instruction( void ){
@@ -216,7 +266,6 @@ n_instr* instructionFaire( void ){
 
 
     n_instr* _expFinal = cree_n_instr_faire(_instrOne, _expOne);
-    //affiche_exp(_expFinal);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
@@ -227,21 +276,21 @@ n_instr* instructionAffect( void ){
     n_var* _variable;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
-    if( est_premier(uniteCourante, _var_) )
-        _variable = var();
 
+    if( est_premier(uniteCourante, _var_) ) _variable = var();
 
     if( uniteCourante != EGAL ) erreur(__FUNCTION__);
     readToken();
+
 
     n_exp* _expOne = expression();
 
     if(uniteCourante != POINT_VIRGULE) erreur(__FUNCTION__);
     readToken();
-    affiche_balise_fermante(__FUNCTION__, showXML);
 
     n_instr* _expFinal = cree_n_instr_affect(_variable, _expOne);
 
+    affiche_balise_fermante(__FUNCTION__, showXML);
     return _expFinal;
 }
 
@@ -424,7 +473,8 @@ n_exp* expression( void ){
     if( est_premier( uniteCourante, _conjonction_) ){
         _expOne = conjonction();
         _expTwo = expressionBis(_expOne);
-    } else erreur(__FUNCTION__);
+    }
+    else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
@@ -457,7 +507,6 @@ n_exp* expressionBis( n_exp* herite ){
 n_exp* conjonction( void ){
     n_exp* _expOne;
     n_exp* _expTwo;
-    n_exp* _expThree;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
@@ -468,9 +517,8 @@ n_exp* conjonction( void ){
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
-    _expThree = cree_n_exp_op(et, _expOne, _expTwo);
 
-    return _expThree;
+    return _expTwo;
 }
 
 n_exp* conjonctionBis( n_exp* herite ){
@@ -690,13 +738,13 @@ n_exp* facteur( void ){
 n_var* var( void ){
     n_var* _varOne;
     n_exp* _expOne;
+    char* varName;
 
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
-    char* varName = val; // val -> valeur du buffer qui a été lu dans un read_token() avant de rentrer dans la fonction var().
-
     readToken();
+    varName = duplique_chaine(val);
     _expOne = optIndice();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
@@ -738,10 +786,8 @@ n_appel* appelFct( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ID_FCT ){
-
-        foncName = val; // où val est le nom de la fonction
-
         readToken();
+        foncName = duplique_chaine(val);
         if( uniteCourante == PARENTHESE_OUVRANTE ){
             readToken();
              _nlexpOne = listeExpressions();
@@ -768,40 +814,50 @@ n_l_exp* listeExpressions( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expression_) ){
-        expression();
-        listeExpressionsBis();
+        _expOne = expression();
+        _nlexpOne = listeExpressionsBis( NULL );
     }
     else if( est_suivant(uniteCourante, _listeExpressions_) ){
         affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
+        return NULL;
     }
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-
+    return cree_n_l_exp(_expOne, _nlexpOne);
 }
 
 n_l_exp* listeExpressionsBis( n_l_exp* herite ){
+    n_exp* _expOne;
+    n_l_exp* _nlexpOne;
+    n_l_exp* _nlexpTwo;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
         readToken();
-        expression();
-        listeExpressionsBis();
+        _expOne = expression();
+        _nlexpOne = cree_n_l_exp(_expOne, herite);
+        _nlexpTwo = listeExpressionsBis(_nlexpOne);
     }
-    else if( est_suivant(uniteCourante, _listeExpressionsBis_)){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return;
-    }
+    else if( est_suivant(uniteCourante, _listeExpressionsBis_)) _nlexpTwo = herite;
     else erreur(__FUNCTION__);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    return _nlexpTwo;
 }
 
-void test_syntaxique(FILE *yyin) {
+void test_syntaxique(FILE *yyin, int showSyntaxique, int showAbstrait) {
+    showXML = showSyntaxique;
+
     initialise_suivants();
     initialise_premiers();
     uniteCourante = yylex();
-    programme();
+
+    n_prog* prog = programme();
+
+    if( showXML == 0 && showAbstrait == 1 )
+        affiche_n_prog(prog);
 }

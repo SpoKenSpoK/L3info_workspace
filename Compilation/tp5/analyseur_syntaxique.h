@@ -5,17 +5,17 @@
 #include "syntabs.h"
 
 void readToken();
-void programme();
-void optDecVariables();
-void listeDecVariables();
-void listeDecVariablesBis();
-void declarationVariable();
+n_prog* programme();
+n_l_dec* optDecVariables();
+n_l_dec* listeDecVariables();
+n_l_dec* listeDecVariablesBis();
+n_dec* declarationVariable();
 n_l_instr* listeInstructions();
-void optTailleTableau();
-void listeDecFonctions();
-void declarationFonction();
-void listeParam();
-void optListeDecVariables();
+int optTailleTableau();
+n_l_dec* listeDecFonctions();
+n_dec* declarationFonction();
+n_l_dec* listeParam();
+n_l_dec* optListeDecVariables();
 n_instr* instruction();
 n_instr* instructionFaire();
 n_instr* instructionAffect();
@@ -45,6 +45,6 @@ n_appel* appelFct();
 n_l_exp* listeExpressions();
 n_l_exp* listeExpressionsBis(n_l_exp* );
 
-void test_syntaxique(FILE* );
+void test_syntaxique(FILE* ,int , int);
 
 #endif

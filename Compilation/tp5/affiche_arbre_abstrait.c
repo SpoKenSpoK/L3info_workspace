@@ -7,6 +7,8 @@ void affiche_l_instr(n_l_instr *n);
 void affiche_instr(n_instr *n);
 void affiche_instr_si(n_instr *n);
 void affiche_instr_tantque(n_instr *n);
+void affiche_instr_faire(n_instr *n);      /* MODIFIE POUR EVAL */
+void affiche_instr_pour(n_instr *n);       /* MODIFIE POUR EVAL */
 void affiche_instr_affect(n_instr *n);
 void affiche_instr_appel(n_instr *n);
 void affiche_instr_retour(n_instr *n);
@@ -38,7 +40,7 @@ void affiche_n_prog(n_prog *n)
   affiche_balise_ouvrante(fct, trace_abs);
 
   affiche_l_dec(n->variables);
-  affiche_l_dec(n->fonctions); 
+  affiche_l_dec(n->fonctions);
   affiche_balise_fermante(fct, trace_abs);
 }
 
@@ -50,8 +52,8 @@ void affiche_l_instr(n_l_instr *n)
   char *fct = "l_instr";
   if(n){
   affiche_balise_ouvrante(fct, trace_abs);
-    affiche_instr(n->tete);
-    affiche_l_instr(n->queue);
+  affiche_instr(n->tete);
+  affiche_l_instr(n->queue);
   affiche_balise_fermante(fct, trace_abs);
   }
 }
@@ -65,6 +67,8 @@ void affiche_instr(n_instr *n)
     else if(n->type == affecteInst) affiche_instr_affect(n);
     else if(n->type == siInst) affiche_instr_si(n);
     else if(n->type == tantqueInst) affiche_instr_tantque(n);
+    else if(n->type == faireInst) affiche_instr_faire(n);
+    //else if(n->type == pourInst) affiche_instr_pour(n);
     else if(n->type == appelInst) affiche_instr_appel(n);
     else if(n->type == retourInst) affiche_instr_retour(n);
     else if(n->type == ecrireInst) affiche_instr_ecrire(n);
@@ -74,7 +78,7 @@ void affiche_instr(n_instr *n)
 /*-------------------------------------------------------------------------*/
 
 void affiche_instr_si(n_instr *n)
-{  
+{
   char *fct = "instr_si";
   affiche_balise_ouvrante(fct, trace_abs);
 
@@ -97,6 +101,30 @@ void affiche_instr_tantque(n_instr *n)
   affiche_instr(n->u.tantque_.faire);
   affiche_balise_fermante(fct, trace_abs);
 }
+
+/*-------------------------------------------------------------------------*/
+
+void affiche_instr_faire(n_instr *n)          /* MODIFIE POUR EVAL */
+{                                             /* MODIFIE POUR EVAL */
+  char *fct = "instr_faire";                  /* MODIFIE POUR EVAL */
+  affiche_balise_ouvrante(fct, trace_abs);    /* MODIFIE POUR EVAL */
+  affiche_instr(n->u.faire_.faire);           /* MODIFIE POUR EVAL */
+  affiche_exp(n->u.faire_.test);              /* MODIFIE POUR EVAL */
+  affiche_balise_fermante(fct, trace_abs);    /* MODIFIE POUR EVAL */
+}                                             /* MODIFIE POUR EVAL */
+
+/*-------------------------------------------------------------------------*/
+
+void affiche_instr_pour(n_instr *n)                /* MODIFIE POUR EVAL */
+{                                                  /* MODIFIE POUR EVAL */
+  char *fct = "instr_pour";                        /* MODIFIE POUR EVAL */
+  affiche_balise_ouvrante(fct, trace_abs);         /* MODIFIE POUR EVAL */
+  //affiche_instr(n->u.pour_.init);                  /* MODIFIE POUR EVAL */
+  //affiche_exp(n->u.pour_.test);                    /* MODIFIE POUR EVAL */
+  //affiche_instr(n->u.pour_.faire);                 /* MODIFIE POUR EVAL */
+  //affiche_instr(n->u.pour_.incr);                  /* MODIFIE POUR EVAL */
+  affiche_balise_fermante(fct, trace_abs);         /* MODIFIE POUR EVAL */
+}                                                  /* MODIFIE POUR EVAL */
 
 /*-------------------------------------------------------------------------*/
 
@@ -205,7 +233,7 @@ void affiche_opExp(n_exp *n)
   else if(n->u.opExp_.op == infeg) affiche_texte("infeg", trace_abs);
   else if(n->u.opExp_.op == ou) affiche_texte("ou", trace_abs);
   else if(n->u.opExp_.op == et) affiche_texte("et", trace_abs);
-  else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);  
+  else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);
   if( n->u.opExp_.op1 != NULL ) {
     affiche_exp(n->u.opExp_.op1);
   }
@@ -269,7 +297,7 @@ void affiche_dec(n_dec *n)
     else if(n->type == varDec) {
       affiche_varDec(n);
     }
-    else if(n->type == tabDec) { 
+    else if(n->type == tabDec) {
       affiche_tabDec(n);
     }
   }
@@ -325,7 +353,10 @@ void affiche_var_simple(n_var *n)
 /*-------------------------------------------------------------------------*/
 void affiche_var_indicee(n_var *n)
 {
-  affiche_element("var_indicee", n->nom, trace_abs);
-
+  char *fct = "var_indicee";
+  affiche_balise_ouvrante(fct, trace_abs);
+  affiche_element("var_base_tableau", n->nom, trace_abs);
+  affiche_exp( n->u.indicee_.indice );
+  affiche_balise_fermante(fct, trace_abs);
 }
 /*-------------------------------------------------------------------------*/
