@@ -8,7 +8,7 @@ void readToken();
 n_prog* programme();
 n_l_dec* optDecVariables();
 n_l_dec* listeDecVariables();
-n_l_dec* listeDecVariablesBis();
+n_l_dec* listeDecVariablesBis(n_l_dec* );
 n_dec* declarationVariable();
 n_l_instr* listeInstructions();
 int optTailleTableau();

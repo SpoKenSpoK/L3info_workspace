@@ -95,8 +95,7 @@ n_l_dec* listeDecVariablesBis( n_l_dec* herite ){
         _nldecTwo = listeDecVariablesBis(_nldecOne);
     }
     else if( est_suivant(uniteCourante, _listeDecVariablesBis_) ){
-        affiche_balise_fermante(__FUNCTION__, showXML);
-        return NULL;
+        _nldecTwo = herite;
     }
     else erreur(__FUNCTION__);
 
@@ -136,8 +135,8 @@ int optTailleTableau( void ){
     if( uniteCourante == CROCHET_OUVRANT ){
         readToken();
         if( uniteCourante != NOMBRE ) erreur(__FUNCTION__);
-        tailleTAB = atoi(val);
         readToken();
+        tailleTAB = atoi(val);
         if( uniteCourante != CROCHET_FERMANT ) erreur(__FUNCTION__);
         readToken();
     }

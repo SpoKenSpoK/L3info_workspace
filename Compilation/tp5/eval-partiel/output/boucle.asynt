@@ -1,6 +1,9 @@
 <prog>
   <l_dec>
     <varDec>$i</varDec>
+    <l_dec>
+      <varDec>$carre</varDec>
+    </l_dec>
   </l_dec>
   <l_dec>
     <foncDec>
