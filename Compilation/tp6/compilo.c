@@ -17,8 +17,9 @@ int main(int argc, char **argv) {
   }
 
   if( strcmp( argv[1], "-l") == 0 )  test_yylex_internal(yyin);
-  if( strcmp( argv[1], "-s") == 0 )  test_syntaxique(yyin, 1, 0);
-  if( strcmp( argv[1], "-a") == 0 )  test_syntaxique(yyin, 0, 1);
+  if( strcmp( argv[1], "-s") == 0 )  test_syntaxique(yyin, 1, 0, 0);
+  if( strcmp( argv[1], "-a") == 0 )  test_syntaxique(yyin, 0, 1, 0);
+  if( strcmp( argv[1], "-t") == 0 )  test_syntaxique(yyin, 0, 1, 1);
 
   return 0;
 }

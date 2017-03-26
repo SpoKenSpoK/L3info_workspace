@@ -45,6 +45,6 @@ n_appel* appelFct();
 n_l_exp* listeExpressions();
 n_l_exp* listeExpressionsBis(n_l_exp* );
 
-void test_syntaxique(FILE* ,int , int);
+void test_syntaxique(FILE* ,int , int, int);
 
 #endif
