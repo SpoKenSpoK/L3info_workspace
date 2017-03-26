@@ -1,0 +1,13 @@
+------------------------------------------
+base = 1
+sommet = 2
+0 lireEtValider GLOBALE FONCTION 0 0
+1 $x LOCALE ENTIER 0 1
+------------------------------------------
+------------------------------------------
+base = 2
+sommet = 3
+0 lireEtValider GLOBALE FONCTION 0 0
+1 main GLOBALE FONCTION 0 0
+2 $val LOCALE ENTIER 0 1
+------------------------------------------

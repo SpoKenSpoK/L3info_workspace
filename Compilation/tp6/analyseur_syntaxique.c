@@ -17,7 +17,8 @@ char val[1024];
 int showXML = 0;
 int showTAB_SYMB = 0;
 
-int nbArg;
+int nbArg_Dec;
+int nbArg_App;
 int portee = P_VARIABLE_GLOBALE;
 int adresseLocaleCourante;
 int adresseArgumentCourant;
@@ -123,35 +124,33 @@ n_dec* declarationVariable( void ){
     readToken();
     if( uniteCourante != ID_VAR ) erreur(__FUNCTION__);
     readToken();
+
     varName = duplique_chaine(val);
+    if( rechercheDeclarative(varName) >= 0 ){
+        erreur_1s("La variable %s est déjà déclarée.", varName);
+    }
 
     tailleTAB = optTailleTableau();
-
-    //rechercheDeclarative_ERR(varName);
 
     if ( tailleTAB != 0 ){
         _decOne = cree_n_dec_tab(varName, tailleTAB);
         ajouteIdentificateur(varName, P_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, 0, tailleTAB);
-        printf("declarationVariable() - %s - tableau\n", varName);
     }
     else {
         _decOne = cree_n_dec_var(varName);
 
         if( portee == P_VARIABLE_GLOBALE ){
-            ajouteIdentificateur(varName, portee, T_ENTIER, adresseGlobaleCourante, 1);
+            ajouteIdentificateur(varName, P_VARIABLE_GLOBALE, T_ENTIER, adresseGlobaleCourante, 1);
             adresseGlobaleCourante+=4;
-            printf("declarationVariable() - %s - globale\n", varName);
         }
         else if( portee == P_VARIABLE_LOCALE ){
-            ajouteIdentificateur(varName, portee, T_ENTIER, adresseLocaleCourante, 1);
+            ajouteIdentificateur(varName, P_VARIABLE_LOCALE, T_ENTIER, adresseLocaleCourante, 1);
             adresseLocaleCourante+=4;
-            printf("declarationVariable() - %s - locale\n", varName);
         }
         else if( portee == P_ARGUMENT ){
-            ajouteIdentificateur(varName, portee, T_ENTIER, adresseArgumentCourant, 1);
+            ajouteIdentificateur(varName, P_ARGUMENT, T_ENTIER, adresseArgumentCourant, 1);
             adresseArgumentCourant+=4;
-            ++nbArg;
-            printf("declarationVariable() - %s - argument\n", varName);
+            ++nbArg_Dec;
         }
     }
 
@@ -214,7 +213,7 @@ n_dec* declarationFonction( void ){
     readToken();
 
     //variable globale remise à 0
-    nbArg = 0;
+    nbArg_Dec = 0;
     foncName = duplique_chaine(val);
 
     // On recherche si la fonction n'est pas déjà déclaréer auparavant
@@ -223,16 +222,15 @@ n_dec* declarationFonction( void ){
 
     // Ajout de l'identificateur fonction
     int foncID = ajouteIdentificateur(foncName, P_VARIABLE_GLOBALE, T_FONCTION, 0, 0);
-    printf("declarationFonction() - %s\n", foncName);
-
     entreeFonction();
 
     _nldecOne = listeParam();
+    // Ajout du nombre d'argument à l'identificateur fonction
+    tabsymboles.tab[foncID].complement = nbArg_Dec;
+
     _nldecTwo = optDecVariables();
     _instrOne = instructionBloc();
 
-    // Ajout du nombre d'argument à l'identificateur fonction
-    tabsymboles.tab[foncID].complement = nbArg;
     if( showTAB_SYMB == 1) afficheTabsymboles();
     sortieFonction();
 
@@ -798,7 +796,16 @@ n_var* var( void ){
     varName = duplique_chaine(val);
     _expOne = optIndice();
 
-    printf("--> var() : %s\n", varName);
+    int IDvar_ = rechercheExecutable(varName);
+    if( IDvar_ >= 0 ){
+        if( tabsymboles.tab[IDvar_].type == T_TABLEAU_ENTIER && _expOne == NULL )
+            erreur_1s("Le tableau %s ne peut être utilisé sans indice", varName);
+
+        if( tabsymboles.tab[IDvar_].type == T_ENTIER && _expOne != NULL )
+            erreur_1s("La variable %s n'est pas un tableau (aucune possibilité de transtypage)", varName);
+    }else{
+        erreur_1s("La variable %s est non déclarée auparavant", varName);
+    }
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
@@ -836,6 +843,8 @@ n_appel* appelFct( void ){
     n_appel* _appelOne;
     char* foncName;
 
+    nbArg_App = 0;
+
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == ID_FCT ){
@@ -844,9 +853,6 @@ n_appel* appelFct( void ){
         if( uniteCourante == PARENTHESE_OUVRANTE ){
             readToken();
              _nlexpOne = listeExpressions();
-
-             printf("appelFct : %s - %d\n", foncName, nbArg);
-
             if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
             readToken();
         } else erreur(__FUNCTION__);
@@ -857,12 +863,15 @@ n_appel* appelFct( void ){
     }
     else erreur(__FUNCTION__);
 
-    // TODO
-    //entreeFonction();
-    ajouteIdentificateur(foncName, P_VARIABLE_GLOBALE, T_FONCTION, 0, nbArg);
-    //SsortieFonction();
-
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    int IDfonc_ = rechercheExecutable(foncName);
+    if( IDfonc_ >= 0 ){
+        if( nbArg_App != tabsymboles.tab[IDfonc_].complement )
+            erreur_1s("Nombre d'arguments dans la fonction %s incorrect", foncName);
+    }else{
+        erreur_1s("La fonction %s est non déclarée auparavant", foncName);
+    }
 
     _appelOne = cree_n_appel(foncName, _nlexpOne);
     return _appelOne;
@@ -875,10 +884,8 @@ n_l_exp* listeExpressions( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _expression_) ){
+        ++nbArg_App;
         _expOne = expression();
-
-        //++nbArg;
-
         _nlexpOne = listeExpressionsBis( NULL );
     }
     else if( est_suivant(uniteCourante, _listeExpressions_) ){
@@ -900,11 +907,9 @@ n_l_exp* listeExpressionsBis( n_l_exp* herite ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == VIRGULE ){
+        ++nbArg_App;
         readToken();
         _expOne = expression();
-
-        //++nbArg;
-
         _nlexpOne = cree_n_l_exp(_expOne, herite);
         _nlexpTwo = listeExpressionsBis(_nlexpOne);
     }
