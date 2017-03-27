@@ -1,0 +1,23 @@
+Expressions simples :
+
+	- constantes -> empiler la constante ;
+	- variable -> empiler [$var] (variable globale),
+	  ou paramètre -> empiler ebp - 4 - adr($var) (variable globale),
+			-> empiler ebp + 4 + 4*nbArg - adr(paramètre) (paramètre) ;
+	- appel de fonction | reserver de la place pour la valeur de retour ;
+			    | empiler les paramètres ;
+			    | call.
+	- appel fonction lire() -> readline + adr + push.
+
+Expressions complexes :
+	
+	- opérations arithmétiques a + a, a - a, a * a, a / a
+		- dépiler les opérandes dans les registres ;
+		- affecter le calcul ;
+		- empiler le résultat.
+	- comparaison ( <, = ) :
+		- dépiler dans des registres ;
+		- comparaison ;
+		- sauts conditionnels.
+	- opérations logiques ( &, | )
+		- 		

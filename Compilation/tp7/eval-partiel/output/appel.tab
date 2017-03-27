@@ -1,0 +1,14 @@
+------------------------------------------
+base = 1
+sommet = 4
+0 procedure GLOBALE FONCTION 0 2
+1 $a ARGUMENT ENTIER 0 1
+2 $b ARGUMENT ENTIER 4 1
+3 $c LOCALE ENTIER 0 1
+------------------------------------------
+------------------------------------------
+base = 2
+sommet = 2
+0 procedure GLOBALE FONCTION 0 2
+1 main GLOBALE FONCTION 0 0
+------------------------------------------
