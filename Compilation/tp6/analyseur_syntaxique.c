@@ -135,7 +135,7 @@ n_dec* declarationVariable( void ){
     if ( tailleTAB != 0 ){
         _decOne = cree_n_dec_tab(varName, tailleTAB);
         ajouteIdentificateur(varName, P_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseGlobaleCourante, tailleTAB);
-        adresseGlobaleCourante+=4;
+        adresseGlobaleCourante+=( 4 * tailleTAB );
     }
     else {
         _decOne = cree_n_dec_var(varName);

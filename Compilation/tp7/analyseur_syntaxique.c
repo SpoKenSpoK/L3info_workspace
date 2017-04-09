@@ -1,21 +1,25 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "util.h"
 #include "symboles.h"
 #include "premiers.h"
 #include "suivants.h"
 #include "analyseur_lexical.h"
 #include "analyseur_syntaxique.h"
-#include "util.h"
 #include "syntabs.h"
 #include "affiche_arbre_abstrait.h"
 #include "tabsymboles.h"
+#include "generationX86.h"
 
 int uniteCourante;
 char buff[1024];
 char val[1024];
 int showXML = 0;
 int showTAB_SYMB = 0;
+
+int indexExp = -1;
+char actualExp[1024];
 
 int nbArg_Dec;
 int nbArg_App;
@@ -37,7 +41,14 @@ n_prog* programme( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _optDecVariables_) || est_premier(uniteCourante, _listeDecFonctions_) ){
+        X86_include();
+        if( sectionBSS == 0 ){
+            defaultRoute("ASM_DEFAUT/section_bss.asm");
+            sectionBSS = 1;
+        }
         _nldecOne = optDecVariables();
+        X86_text();
+        X86_start();
         _nldecTwo = listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _programme_) ){
@@ -135,7 +146,8 @@ n_dec* declarationVariable( void ){
     if ( tailleTAB != 0 ){
         _decOne = cree_n_dec_tab(varName, tailleTAB);
         ajouteIdentificateur(varName, P_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, adresseGlobaleCourante, tailleTAB);
-        adresseGlobaleCourante+=4;
+        adresseGlobaleCourante+=( 4 * tailleTAB );
+        X86_bss(varName, "rest", tailleTAB);
     }
     else {
         _decOne = cree_n_dec_var(varName);
@@ -143,6 +155,7 @@ n_dec* declarationVariable( void ){
         if( portee == P_VARIABLE_GLOBALE ){
             ajouteIdentificateur(varName, P_VARIABLE_GLOBALE, T_ENTIER, adresseGlobaleCourante, 1);
             adresseGlobaleCourante+=4;
+            X86_bss(varName, "rest", 1);
         }
         else if( portee == P_VARIABLE_LOCALE ){
             ajouteIdentificateur(varName, P_VARIABLE_LOCALE, T_ENTIER, adresseLocaleCourante, 1);
@@ -152,6 +165,8 @@ n_dec* declarationVariable( void ){
             ajouteIdentificateur(varName, P_ARGUMENT, T_ENTIER, adresseArgumentCourant, 1);
             adresseArgumentCourant+=4;
             ++nbArg_Dec;
+
+
         }
     }
 
@@ -225,12 +240,36 @@ n_dec* declarationFonction( void ){
     int foncID = ajouteIdentificateur(foncName, P_VARIABLE_GLOBALE, T_FONCTION, 0, 0);
     entreeFonction();
 
+    // Ecriture X86 nom fonction
+    IWriteFile("\n");
+    IWriteFile(foncName);
+    IWriteFile(":\n");
+    // DEPLACEMENT DU BASE POINTEUR
+    IWriteFile("; ---- ENTREE FONCTION ----\n");
+    IWriteFile("    push ebp            ; sauvegarde la valeur de ebp\n");
+    IWriteFile("    mov  ebp, esp            ; nouvelle valeur de ebp\n");
+
     _nldecOne = listeParam();
     // Ajout du nombre d'argument à l'identificateur fonction
     tabsymboles.tab[foncID].complement = nbArg_Dec;
 
+    // DECLARATION & ALLOCATION ESPACE MEMOIRE POUR ARGUMENT FONCTION
+    char adrAlloc[1024];
+    IWriteFile("---- DECLARATION ARGUMENTS ----\n");
+    for(int i=0; i < nbArg_Dec; ++i){
+        IWriteFile("    mov  ebx, [ebp + ");
+        sprintf(adrAlloc,"%d] ; lit variable dans ebx\n", (4*3) - (4*i));
+        IWriteFile(adrAlloc);
+        IWriteFile("    push ebx\n");
+    }
+
     _nldecTwo = optDecVariables();
     _instrOne = instructionBloc();
+
+    // Retour
+    IWriteFile("; ---- RETOUR ----\n");
+    IWriteFile("    pop  ebp             ; restaure la valeur de ebp\n"); // RESTAURATION DE LA VALEUR EBP
+    IWriteFile("    ret\n");
 
     if( showTAB_SYMB == 1) afficheTabsymboles();
     sortieFonction();
@@ -338,6 +377,14 @@ n_instr* instructionAffect( void ){
     if(uniteCourante != POINT_VIRGULE) erreur(__FUNCTION__);
     readToken();
 
+    // X86_instrAffect VARIABLE | à faire TODO*
+    // $a = ebx (ebx <- registre )
+    IWriteFile("; ---- AFFECTATION ----\n");
+    IWriteFile("    pop  ebx\n");
+    IWriteFile("    mov  [");
+    IWriteFile(_variable->nom);
+    IWriteFile("], ebx          ; stocke registre dans variable\n");
+
     n_instr* _expFinal = cree_n_instr_affect(_variable, _expOne);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
@@ -435,12 +482,26 @@ n_instr* instructionTantque( void ){
 
     if( uniteCourante == TANTQUE ){
         readToken();
+
+        // ENTREE DANS LE TANT QUE
+        sprintf(actualExp, "e%d:\n", ++indexExp);
+        IWriteFile(actualExp);
+        // A utiliser pour la valeur de l'expression retour
+        int indexRetourTantQue = ++indexExp;
+
         _expOne = expression();
-            if( uniteCourante == FAIRE ){
-                readToken();
-                _instrBloc = instructionBloc();
-            }
-            else erreur(__FUNCTION__);
+        if( uniteCourante == FAIRE ){
+            readToken();
+
+            _instrBloc = instructionBloc();
+
+            sprintf(actualExp, "    jmp  e%d\n", indexRetourTantQue-1);
+            IWriteFile(actualExp);
+
+            sprintf(actualExp, "e%d:\n", indexRetourTantQue);
+            IWriteFile(actualExp);
+        }
+        else erreur(__FUNCTION__);
     }
     else
         erreur(__FUNCTION__);
@@ -497,6 +558,10 @@ n_instr* instructionEcriture( void ){
     readToken();
 
     affiche_balise_fermante(__FUNCTION__, showXML);
+
+    IWriteFile("; ---- ECRIRE ----\n");
+    IWriteFile("    pop	 eax\n");
+    IWriteFile("    call iprintLF           ; écrire + \\n\"\n");
 
     return cree_n_instr_ecrire(_expOne);
 }
@@ -628,6 +693,37 @@ n_exp* comparaisonBis( n_exp* herite ){
         readToken();
         _expOne = expArith();
         _expTwo = cree_n_exp_op(inf, herite, _expOne);
+
+        //TODO INFERIEUR
+        IWriteFile("; ---- eax < ebx ----\n");
+        IWriteFile("    pop  ebx     ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop	 eax		; depile la permière operande dans eax\n");
+        IWriteFile("    cmp	 eax, ebx\n");
+
+        // SI BIEN EAX < EBX :
+        IWriteFile("    jl   ");
+        sprintf(actualExp, "e%d\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        // SINON
+        IWriteFile("    push 0\n");
+        IWriteFile("    jmp	 ");
+        sprintf(actualExp, "e%d\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        sprintf(actualExp, "e%d:\n", --indexExp);
+        IWriteFile(actualExp);
+        IWriteFile("    push 1\n");
+
+        sprintf(actualExp, "e%d:\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        IWriteFile("    pop  eax\n");
+        IWriteFile("    cmp	 eax, 00\n");
+        IWriteFile("    jz	 ");
+        sprintf(actualExp, "e%d\n", indexExp-2);
+        IWriteFile(actualExp);
+
         _expThree = comparaisonBis(_expTwo);
     }
     else if( est_suivant(uniteCourante, _comparaisonBis_) ) _expThree = herite;
@@ -667,12 +763,28 @@ n_exp* expArithBis( n_exp* herite ){
         readToken();
         _expOne = terme();
         _expTwo = cree_n_exp_op(plus, herite, _expOne);
+
+        // TODO ADDITION
+        IWriteFile("; ---- eax = eax + ebx ----\n");
+        IWriteFile("    pop  ebx		 ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop  eax		 ; depile la permière operande dans eax\n");
+        IWriteFile("    add  eax, ebx	 ; effectue l'opération\n");
+        IWriteFile("    push eax		 ; empile le résultat\n");
+
         _expThree = expArithBis(_expTwo);
     }
     else if( uniteCourante == MOINS ){
         readToken();
         _expOne = terme();
         _expTwo = cree_n_exp_op(moins, herite, _expOne);
+
+        // TODO ADDITION
+        IWriteFile("; ---- eax = eax - ebx ----\n");
+        IWriteFile("    pop  ebx		 ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop  eax		 ; depile la permière operande dans eax\n");
+        IWriteFile("    sub  eax, ebx	 ; effectue l'opération\n");
+        IWriteFile("    push eax		 ; empile le résultat\n");
+
         _expThree = expArithBis(_expTwo);
     }
     else if( est_suivant(uniteCourante, _expArithBis_) ) _expThree = herite;
@@ -710,14 +822,29 @@ n_exp* termeBis( n_exp* herite ){
         readToken();
         _expOne = negation();
         _expTwo = cree_n_exp_op(fois, herite, _expOne);
+
+        // TODO MULTIPLICATION
+        IWriteFile("; ---- eax = eax * ebx ----\n");
+        IWriteFile("    pop	 ebx		 ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop	 eax		 ; depile la permière operande dans eax\n");
+        IWriteFile("    mul	 ebx		 ; effectue l'opération\n");
+        IWriteFile("    push eax		 ; empile le résultat\n");
+
         _expThree = termeBis(_expTwo);
     }
     else if( uniteCourante == DIVISE ){
         readToken();
         _expOne = negation();
         _expTwo = cree_n_exp_op(divise, herite, _expOne);
-        _expThree = termeBis(_expTwo);
 
+        // TODO Division
+        IWriteFile("; ---- eax = eax / ebx ----\n");
+        IWriteFile("    pop	 ebx		 ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop	 eax		 ; depile la permière operande dans eax\n");
+        IWriteFile("    div	 ebx		 ; effectue l'opération\n");
+        IWriteFile("    push eax		 ; empile le résultat\n");
+
+        _expThree = termeBis(_expTwo);
     }
     else if( est_suivant(uniteCourante, _termeBis_) ) _expThree = herite;
     else erreur(__FUNCTION__);
@@ -760,6 +887,12 @@ n_exp* facteur( void ){
     else if( uniteCourante == NOMBRE ){
         readToken();
         _expOne = cree_n_exp_entier(atoi(val));
+
+        // TODO FONCTION AFFECT EGAL
+        IWriteFile("; ---- NOMBRE ----\n");
+        IWriteFile("    push ");
+        IWriteFile(val);
+        IWriteFile("\n");
     }
     else if( uniteCourante == LIRE ){
         readToken();
@@ -768,11 +901,29 @@ n_exp* facteur( void ){
         if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
         readToken();
 
+        // TODO FONCTION AFFECT LIRE
+        IWriteFile("; ---- LIRE ----\n");
+        IWriteFile("    mov	 ecx, sinput\n");
+    	IWriteFile("    mov	 edx, 255\n");
+    	IWriteFile("    mov	 eax, 3		 ; 3 est le code de SYS_READ\n");
+    	IWriteFile("    mov	 ebx, 0		 ; 0 est le code de STDIN\n");
+    	IWriteFile("    int	 80h\n");
+    	IWriteFile("    mov	 eax, sinput\n");
+    	IWriteFile("    call atoi\n");
+        IWriteFile("    push eax\n");
+
         _expOne = cree_n_exp_lire();
     }
     else if( est_premier(uniteCourante, _var_) ){
         _variable = var();
         _expOne = cree_n_exp_var(_variable);
+
+        // TODO
+        IWriteFile("; ---- UTILISATION VARIABLE ----\n");
+        IWriteFile("    mov  ebx, [");
+        IWriteFile(_variable->nom);
+        IWriteFile("]\n");
+        IWriteFile("    push ebx\n");
     }
     else if( est_premier(uniteCourante, _appelFct_) ){
         _appel = appelFct();
@@ -810,8 +961,12 @@ n_var* var( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    if( _expOne != NULL )   _varOne = cree_n_var_indicee(varName, _expOne);
-    else                    _varOne = cree_n_var_simple(varName);
+    if( _expOne != NULL ){
+        _varOne = cree_n_var_indicee(varName, _expOne);
+    }
+    else{
+        _varOne = cree_n_var_simple(varName);
+    }
 
     return _varOne;
 }
@@ -929,12 +1084,12 @@ void test_syntaxique(FILE *yyin, int showSyntaxique, int showAbstrait, int _show
     initialise_premiers();
     uniteCourante = yylex();
 
-    if( _showTAB_SYMB == 1 ){
-        showTAB_SYMB = _showTAB_SYMB;
-    }
+    showTAB_SYMB = _showTAB_SYMB;
 
+    X86_INIT();
     n_prog* prog = programme();
+    X86_CLOSE();
 
-    if( showXML == 0 && showAbstrait == 1 && _showTAB_SYMB == 0)
+    if( showXML == 0 && showAbstrait == 1 && showTAB_SYMB == 0)
         affiche_n_prog(prog);
 }

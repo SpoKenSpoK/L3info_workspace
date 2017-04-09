@@ -3,7 +3,7 @@ CC = gcc
 LIBS = -lm
 CCFLAGS = -Wall -ggdb
 
-OBJ = util.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o affiche_arbre_abstrait.o syntabs.o tabsymboles.o
+OBJ = util.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o affiche_arbre_abstrait.o syntabs.o tabsymboles.o generationX86.o
 
 all: compilo
 
@@ -33,6 +33,9 @@ syntabs.o: syntabs.c
 
 tabsymboles.o: tabsymboles.c
 	$(CC) $(CCFLAGS) -c tabsymboles.c
+
+generationX86.o: generationX86.c
+	$(CC) $(CCFLAGS) -c generationX86.c
 
 
 
