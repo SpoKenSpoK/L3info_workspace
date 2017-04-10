@@ -31,23 +31,23 @@
 
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
 
-MYCOMPILO="/home/spoken/Git/L3info_workspace/Compilation/tp7/compilo"
+MYCOMPILO="/home/spoken/GIT/L3info_workspace/Compilation/tp7/compilo"
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
-EXITONFAIL=1                     # mettre à zéro pour continuer après erreurs
+EXITONFAIL=0                     # mettre à zéro pour continuer après erreurs
 MYCOMPILODEFAULT="${MYCOMPILO} -s"  # utilisé pour test reconnaissance et erreur
 MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
 MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
 MYCOMPILOASYNT="${MYCOMPILO} -a" # afficher l'arbre abstrait
 MYCOMPILOTAB="${MYCOMPILO} -t"   # afficher les tables des symboles
 #MYCOMPILOMIPS="${MYCOMPILO} -m"  # générer code MIPS
-#MYCOMPILONASM="${MYCOMPILO} -n"  # générer code Intel
+MYCOMPILONASM="${MYCOMPILO} -n"  # générer code Intel
 #MARS="./Mars4_5.jar"             # utilisez autre version de Mars si besoin
-#NASM="nasm"                      # utilisez autre version de nasm si besoin
-#NASMOPTS="-f elf -g -F dwarf"
-#LD="ld"                          # utilisez autre version de ld si besoin
-#LDOPTS="-m elf_i386"
+NASM="nasm"                      # utilisez autre version de nasm si besoin
+NASMOPTS="-f elf -g -F dwarf"
+LD="ld"                          # utilisez autre version de ld si besoin
+LDOPTS="-m elf_i386"
 ##############################################################################
 # NE PLUS LIRE À PARTIR D'ICI ;-)
 ##############################################################################
@@ -242,7 +242,7 @@ function test_fichier_ok() {
       fi
       # Sanity check: MIPS et Intel génèrent la même sortie
       if [ -n "${MYCOMPILOMIPS}" -a -n "${MYCOMPILONASM}" ]; then
-        compare_mips_nasm ref-mips/$input.mips ref-nasm/$input.nasm "$2"
+        #compare_mips_nasm ref-mips/$input.mips ref-nasm/$input.nasm "$2"
 	if [ $? != 0 ]; then
            echo -e "\033[34mATTENTION: MIPS et Intel différents\033[0m"
            exit -1

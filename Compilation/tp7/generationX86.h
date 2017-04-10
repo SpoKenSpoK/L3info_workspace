@@ -29,4 +29,7 @@ void X86_main();
 
 void X86_instrWrite();
 
+void X86_useVar(char* varName);
+void X86_decVar(char* varName);
+
 #endif

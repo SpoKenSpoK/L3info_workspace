@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util.h"
+#include "tabsymboles.h"
 #include "generationX86.h"
 
 
@@ -10,7 +11,7 @@
     Initialisation de variables nécessaires pour I/O
 */
 void X86_INIT(){
-    outPUT_filename = "test.asm";
+    outPUT_filename = "test.nasm";
     outPUT = fopen(outPUT_filename, "w+");
 
     // Booléens permettant de savoir si une telle seciton a déjà été parcourue
@@ -63,10 +64,10 @@ void defaultRoute(char* _filename){
 }
 
 // primaire
-void X86_include() { defaultRoute("ASM_DEFAUT/include.asm"); }
+void X86_include() { defaultRoute("../ASM_DEFAUT/include.asm"); }
 void X86_data() {
     if( sectionDATA == 0 ){
-        defaultRoute("ASM_DEFAUT/section_data.asm");
+        defaultRoute("../ASM_DEFAUT/section_data.asm");
         sectionDATA = 1;
     }
 
@@ -79,8 +80,8 @@ void X86_bss(char* name, char* bytes, int mult){
     IWriteFile(content);
 }
 
-void X86_text(){ defaultRoute("ASM_DEFAUT/section_text.asm"); }
-void X86_start(){ defaultRoute("ASM_DEFAUT/_start.asm"); }
+void X86_text(){ defaultRoute("../ASM_DEFAUT/section_text.asm"); }
+void X86_start(){ defaultRoute("../ASM_DEFAUT/_start.asm"); }
 void X86_main(){
     IWriteFile("\nmain:\n");
 
@@ -95,6 +96,44 @@ void X86_instrWrite(){
 }
 
 void X86_instrAffect(){
+
+
+}
+
+// DECLARATIO VARIABLE
+void X86_decVar(char* varName){
+
+}
+
+// UTILISATION VARIABLE
+void X86_useVar(char* varName){
+
+/*
+
+    int index = rechercheExecutable(varName);
+    int portee = tabsymboles.tab[i].portee;
+    int adr = 4 + tabsymboles.tab[i].adresse;
+
+    switch( portee ){
+        // GLOBAL
+        case 1:
+
+        break;
+
+        // LOCAL
+        case 2:
+
+        break;
+
+        // PARAMETRE
+        case 3:
+
+
+        break;
+
+    }
+
+*/
 
 
 }

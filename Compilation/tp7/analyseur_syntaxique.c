@@ -20,9 +20,14 @@ int showTAB_SYMB = 0;
 
 int indexExp = -1;
 char actualExp[1024];
+char adrAlloc[1024];
 
-int nbArg_Dec;
-int nbArg_App;
+int nbArg_Dec = 0;
+int nbArg_App = 0;
+int nbArg_idFonction = 0;
+
+int nbDecVar = 0;
+
 int portee = P_VARIABLE_GLOBALE;
 int adresseLocaleCourante;
 int adresseArgumentCourant;
@@ -41,14 +46,24 @@ n_prog* programme( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( est_premier(uniteCourante, _optDecVariables_) || est_premier(uniteCourante, _listeDecFonctions_) ){
-        X86_include();
+        //X86_include();
+
+        IWriteFile("%include 'io.asm'\n\n");
+
         if( sectionBSS == 0 ){
-            defaultRoute("ASM_DEFAUT/section_bss.asm");
+
+            IWriteFile("section .bss\nsinput: resb 255	;reserve a 255 byte space in memory for the users input string\n");
+            //defaultRoute("../ASM_DEFAUT/section_bss.asm");
             sectionBSS = 1;
         }
         _nldecOne = optDecVariables();
-        X86_text();
-        X86_start();
+        //X86_text();
+        //X86_start();
+
+        IWriteFile("\nsection .text\n");
+        IWriteFile("global _start\n_start:\n    call main\n    mov  eax, 1                              ; 1 est le code de SYS_EXIT\n    int 0x80\n");
+
+
         _nldecTwo = listeDecFonctions();
     }
     else if( est_suivant(uniteCourante, _programme_) ){
@@ -160,13 +175,12 @@ n_dec* declarationVariable( void ){
         else if( portee == P_VARIABLE_LOCALE ){
             ajouteIdentificateur(varName, P_VARIABLE_LOCALE, T_ENTIER, adresseLocaleCourante, 1);
             adresseLocaleCourante+=4;
+            nbDecVar++;
         }
         else if( portee == P_ARGUMENT ){
             ajouteIdentificateur(varName, P_ARGUMENT, T_ENTIER, adresseArgumentCourant, 1);
             adresseArgumentCourant+=4;
             ++nbArg_Dec;
-
-
         }
     }
 
@@ -229,6 +243,7 @@ n_dec* declarationFonction( void ){
     readToken();
 
     //variable globale remise à 0
+    nbDecVar = 0;
     nbArg_Dec = 0;
     foncName = duplique_chaine(val);
 
@@ -245,29 +260,33 @@ n_dec* declarationFonction( void ){
     IWriteFile(foncName);
     IWriteFile(":\n");
     // DEPLACEMENT DU BASE POINTEUR
-    IWriteFile("; ---- ENTREE FONCTION ----\n");
     IWriteFile("    push ebp            ; sauvegarde la valeur de ebp\n");
     IWriteFile("    mov  ebp, esp            ; nouvelle valeur de ebp\n");
 
     _nldecOne = listeParam();
     // Ajout du nombre d'argument à l'identificateur fonction
     tabsymboles.tab[foncID].complement = nbArg_Dec;
+    nbArg_idFonction = nbArg_Dec;
 
-    // DECLARATION & ALLOCATION ESPACE MEMOIRE POUR ARGUMENT FONCTION
-    char adrAlloc[1024];
-    IWriteFile("---- DECLARATION ARGUMENTS ----\n");
-    for(int i=0; i < nbArg_Dec; ++i){
-        IWriteFile("    mov  ebx, [ebp + ");
-        sprintf(adrAlloc,"%d] ; lit variable dans ebx\n", (4*3) - (4*i));
-        IWriteFile(adrAlloc);
-        IWriteFile("    push ebx\n");
-    }
+    // TODO -> A NE PAS FAIRE
 
     _nldecTwo = optDecVariables();
+
+    if( nbDecVar > 0 ){
+        IWriteFile("    sub  esp, ");
+        sprintf(adrAlloc, "%d   ; allocation variable locale\n", nbDecVar*4);
+        IWriteFile(adrAlloc);
+    }
+
     _instrOne = instructionBloc();
 
+    if( nbDecVar > 0 ){
+        IWriteFile("    add  esp, ");
+        sprintf(adrAlloc, "%d   ; desallocation variable locale\n", nbDecVar*4);
+        IWriteFile(adrAlloc);
+    }
+
     // Retour
-    IWriteFile("; ---- RETOUR ----\n");
     IWriteFile("    pop  ebp             ; restaure la valeur de ebp\n"); // RESTAURATION DE LA VALEUR EBP
     IWriteFile("    ret\n");
 
@@ -377,13 +396,41 @@ n_instr* instructionAffect( void ){
     if(uniteCourante != POINT_VIRGULE) erreur(__FUNCTION__);
     readToken();
 
+
+
     // X86_instrAffect VARIABLE | à faire TODO*
     // $a = ebx (ebx <- registre )
-    IWriteFile("; ---- AFFECTATION ----\n");
-    IWriteFile("    pop  ebx\n");
-    IWriteFile("    mov  [");
-    IWriteFile(_variable->nom);
-    IWriteFile("], ebx          ; stocke registre dans variable\n");
+
+    int index = rechercheExecutable(_variable->nom);
+    int portee = tabsymboles.tab[index].portee;
+    int adr = tabsymboles.tab[index].adresse;
+
+    switch( portee ){
+        // GLOBAL
+        case 1:
+            IWriteFile("    pop  ebx\n");
+            IWriteFile("    mov  [");
+            IWriteFile(_variable->nom);
+            IWriteFile("], ebx   ; global\n");
+        break;
+
+        // LOCAL
+        case 2:
+            IWriteFile("    pop  ebx\n");
+            IWriteFile("    mov  [ebp - ");
+            sprintf(adrAlloc,"%d], ebx  ; local\n", (- 4 - (adr)) * -1);
+            IWriteFile(adrAlloc);
+        break;
+
+        //PARAMETRES
+        case 3:
+            IWriteFile("    pop  ebx\n");
+            IWriteFile("    mov  [ebp + ");
+            sprintf(adrAlloc,"%d], ebx\n    ; parametre", 4 + (4*nbArg_idFonction) - (adr));
+            IWriteFile(adrAlloc);
+        break;
+
+    }
 
     n_instr* _expFinal = cree_n_instr_affect(_variable, _expOne);
 
@@ -439,14 +486,28 @@ n_instr* instructionSi( void ){
 
     if( uniteCourante != SI ) erreur(__FUNCTION__);
     readToken();
+
+    //int adrSinon = indexExp + 1;
+    int adrRetour = indexExp + 2;
+    indexExp+=2;
     _expOne = expression();
 
     if( uniteCourante != ALORS ) erreur(__FUNCTION__);
     readToken();
 
     _instrOne = instructionBloc();
+
+    sprintf(actualExp, "    jmp  e%d\n", adrRetour);
+    IWriteFile(actualExp);
+
     _instrTwo = optSinon();
+
+
     _instrThree = cree_n_instr_si(_expOne, _instrOne, _instrTwo);
+
+    // ENTREE DANS LE TANT QUE
+    sprintf(actualExp, "e%d:\n", adrRetour);
+    IWriteFile(actualExp);
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
@@ -459,6 +520,9 @@ n_instr* optSinon( void ){
     affiche_balise_ouvrante(__FUNCTION__, showXML);
 
     if( uniteCourante == SINON ){
+        sprintf(actualExp, "e%d:\n", indexExp-3);
+        IWriteFile(actualExp);
+
         readToken();
         _instrOne = instructionBloc();
     }
@@ -534,6 +598,14 @@ n_instr* instructionRetour( void ){
     if( uniteCourante != RETOUR ) erreur(__FUNCTION__);
     readToken();
     n_exp* _expOne = expression();
+
+    IWriteFile("    pop  eax\n");
+    IWriteFile("    mov  [ebp + ");
+    sprintf(adrAlloc,"%d], eax\n", 8 + (4*nbArg_idFonction) );
+    IWriteFile(adrAlloc);
+    IWriteFile("    pop  ebp\n");
+    IWriteFile("    ret\n");
+
     if( uniteCourante != POINT_VIRGULE ) erreur(__FUNCTION__);
     readToken();
     affiche_balise_fermante(__FUNCTION__, showXML);
@@ -559,7 +631,6 @@ n_instr* instructionEcriture( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    IWriteFile("; ---- ECRIRE ----\n");
     IWriteFile("    pop	 eax\n");
     IWriteFile("    call iprintLF           ; écrire + \\n\"\n");
 
@@ -687,6 +758,37 @@ n_exp* comparaisonBis( n_exp* herite ){
         readToken();
         _expOne = expArith();
         _expTwo = cree_n_exp_op(egal, herite, _expOne);
+
+        //TODO INFERIEUR
+        IWriteFile("    pop  ebx     ; depile la seconde operande dans ebx\n");
+        IWriteFile("    pop	 eax		; depile la permière operande dans eax\n");
+        IWriteFile("    cmp	 eax, ebx\n");
+
+        // SI BIEN EAX == EBX :
+        IWriteFile("    je   ");
+        sprintf(actualExp, "e%d\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        // SINON
+        IWriteFile("    push 0\n");
+        IWriteFile("    jmp	 ");
+        sprintf(actualExp, "e%d\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        sprintf(actualExp, "e%d:\n", --indexExp);
+        IWriteFile(actualExp);
+        IWriteFile("    push 1\n");
+
+        sprintf(actualExp, "e%d:\n", ++indexExp);
+        IWriteFile(actualExp);
+
+        IWriteFile("    pop  eax\n");
+        IWriteFile("    cmp	 eax, 00\n");
+        IWriteFile("    jz	 ");
+
+        sprintf(actualExp, "e%d\n", indexExp-3);
+        IWriteFile(actualExp);
+
         _expThree = comparaisonBis(_expTwo);
     }
     else if( uniteCourante == INFERIEUR ){
@@ -695,7 +797,6 @@ n_exp* comparaisonBis( n_exp* herite ){
         _expTwo = cree_n_exp_op(inf, herite, _expOne);
 
         //TODO INFERIEUR
-        IWriteFile("; ---- eax < ebx ----\n");
         IWriteFile("    pop  ebx     ; depile la seconde operande dans ebx\n");
         IWriteFile("    pop	 eax		; depile la permière operande dans eax\n");
         IWriteFile("    cmp	 eax, ebx\n");
@@ -721,6 +822,7 @@ n_exp* comparaisonBis( n_exp* herite ){
         IWriteFile("    pop  eax\n");
         IWriteFile("    cmp	 eax, 00\n");
         IWriteFile("    jz	 ");
+
         sprintf(actualExp, "e%d\n", indexExp-2);
         IWriteFile(actualExp);
 
@@ -765,7 +867,6 @@ n_exp* expArithBis( n_exp* herite ){
         _expTwo = cree_n_exp_op(plus, herite, _expOne);
 
         // TODO ADDITION
-        IWriteFile("; ---- eax = eax + ebx ----\n");
         IWriteFile("    pop  ebx		 ; depile la seconde operande dans ebx\n");
         IWriteFile("    pop  eax		 ; depile la permière operande dans eax\n");
         IWriteFile("    add  eax, ebx	 ; effectue l'opération\n");
@@ -778,8 +879,7 @@ n_exp* expArithBis( n_exp* herite ){
         _expOne = terme();
         _expTwo = cree_n_exp_op(moins, herite, _expOne);
 
-        // TODO ADDITION
-        IWriteFile("; ---- eax = eax - ebx ----\n");
+        // TODO SOUSTRACTION
         IWriteFile("    pop  ebx		 ; depile la seconde operande dans ebx\n");
         IWriteFile("    pop  eax		 ; depile la permière operande dans eax\n");
         IWriteFile("    sub  eax, ebx	 ; effectue l'opération\n");
@@ -824,7 +924,6 @@ n_exp* termeBis( n_exp* herite ){
         _expTwo = cree_n_exp_op(fois, herite, _expOne);
 
         // TODO MULTIPLICATION
-        IWriteFile("; ---- eax = eax * ebx ----\n");
         IWriteFile("    pop	 ebx		 ; depile la seconde operande dans ebx\n");
         IWriteFile("    pop	 eax		 ; depile la permière operande dans eax\n");
         IWriteFile("    mul	 ebx		 ; effectue l'opération\n");
@@ -838,7 +937,6 @@ n_exp* termeBis( n_exp* herite ){
         _expTwo = cree_n_exp_op(divise, herite, _expOne);
 
         // TODO Division
-        IWriteFile("; ---- eax = eax / ebx ----\n");
         IWriteFile("    pop	 ebx		 ; depile la seconde operande dans ebx\n");
         IWriteFile("    pop	 eax		 ; depile la permière operande dans eax\n");
         IWriteFile("    div	 ebx		 ; effectue l'opération\n");
@@ -889,7 +987,6 @@ n_exp* facteur( void ){
         _expOne = cree_n_exp_entier(atoi(val));
 
         // TODO FONCTION AFFECT EGAL
-        IWriteFile("; ---- NOMBRE ----\n");
         IWriteFile("    push ");
         IWriteFile(val);
         IWriteFile("\n");
@@ -902,7 +999,6 @@ n_exp* facteur( void ){
         readToken();
 
         // TODO FONCTION AFFECT LIRE
-        IWriteFile("; ---- LIRE ----\n");
         IWriteFile("    mov	 ecx, sinput\n");
     	IWriteFile("    mov	 edx, 255\n");
     	IWriteFile("    mov	 eax, 3		 ; 3 est le code de SYS_READ\n");
@@ -919,11 +1015,38 @@ n_exp* facteur( void ){
         _expOne = cree_n_exp_var(_variable);
 
         // TODO
-        IWriteFile("; ---- UTILISATION VARIABLE ----\n");
-        IWriteFile("    mov  ebx, [");
-        IWriteFile(_variable->nom);
-        IWriteFile("]\n");
-        IWriteFile("    push ebx\n");
+
+        int index = rechercheExecutable(_variable->nom);
+        int portee = tabsymboles.tab[index].portee;
+        int adr = tabsymboles.tab[index].adresse;
+
+        switch( portee ){
+            // GLOBAL
+            case 1:
+                IWriteFile("    mov  ebx, [");
+                IWriteFile(_variable->nom);
+                IWriteFile("]\n");
+                IWriteFile("    push ebx    ; global\n");
+            break;
+
+            // LOCAL
+            case 2:
+                IWriteFile("    mov  ebx, [ebp - ");
+                sprintf(adrAlloc,"%d] ; lit variable dans ebx\n", (- 4 - (adr)) * -1);
+                IWriteFile(adrAlloc);
+                IWriteFile("    push ebx    ; local\n");
+
+            break;
+
+            //PARAMETRES
+            case 3:
+                IWriteFile("    mov  ebx, [ebp + ");
+                sprintf(adrAlloc,"%d] ; lit variable dans ebx\n", 4 + (4*nbArg_idFonction) - (adr));
+                IWriteFile(adrAlloc);
+                IWriteFile("    push ebx    ; parametre\n");
+            break;
+        }
+
     }
     else if( est_premier(uniteCourante, _appelFct_) ){
         _appel = appelFct();
@@ -998,6 +1121,7 @@ n_appel* appelFct( void ){
     n_l_exp* _nlexpOne;
     n_appel* _appelOne;
     char* foncName;
+    int IDfonc_;
 
     nbArg_App = 0;
 
@@ -1006,9 +1130,23 @@ n_appel* appelFct( void ){
     if( uniteCourante == ID_FCT ){
         readToken();
         foncName = duplique_chaine(val);
+        IDfonc_ = rechercheExecutable(foncName);
+
+        nbArg_idFonction = tabsymboles.tab[IDfonc_].complement;
+        IWriteFile("    sub esp, 4  ; allocation valeur de retour\n");
+
         if( uniteCourante == PARENTHESE_OUVRANTE ){
             readToken();
              _nlexpOne = listeExpressions();
+
+             IWriteFile("    call ");
+             IWriteFile(foncName);
+             IWriteFile("\n");
+
+             IWriteFile("    add  esp, ");
+             sprintf(adrAlloc, "%d  ;desallocation parametre\n", nbArg_idFonction*4);
+             IWriteFile(adrAlloc);
+
             if( uniteCourante != PARENTHESE_FERMANTE ) erreur(__FUNCTION__);
             readToken();
         } else erreur(__FUNCTION__);
@@ -1021,7 +1159,6 @@ n_appel* appelFct( void ){
 
     affiche_balise_fermante(__FUNCTION__, showXML);
 
-    int IDfonc_ = rechercheExecutable(foncName);
     if( IDfonc_ >= 0 ){
         if( nbArg_App != tabsymboles.tab[IDfonc_].complement )
             erreur_1s("Nombre d'arguments dans la fonction %s incorrect", foncName);

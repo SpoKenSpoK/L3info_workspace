@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   if( strcmp( argv[1], "-s") == 0 )  test_syntaxique(yyin, 1, 0, 0);    // Syntaxique
   if( strcmp( argv[1], "-a") == 0 )  test_syntaxique(yyin, 0, 1, 0);    // Abstrait
   if( strcmp( argv[1], "-t") == 0 )  test_syntaxique(yyin, 0, 1, 1);    // TabSymboles
+  if( strcmp( argv[1], "-n") == 0 )  test_syntaxique(yyin, 0, 0, 0);  
 
   return 0;
 }
