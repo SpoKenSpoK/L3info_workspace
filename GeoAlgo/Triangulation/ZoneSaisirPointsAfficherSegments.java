@@ -39,23 +39,23 @@ public class ZoneSaisirPointsAfficherSegments extends JPanel  {
         JButton rand = new JButton("Rand");
         JButton intersect = new JButton("Intersection de Segments");
 
-        // Action du bouton Triangulation Monotone
+        // Action du bouton intersection de segments
         intersect.addActionListener( new ActionListener(){
-                                             public void actionPerformed(ActionEvent evt) {
-                                                 // Suppression des points et des segments
-                                                 //canvas.points.removeAllElements();
+                                         public void actionPerformed(ActionEvent evt) {
+                                             // Suppression des points et des segments
+                                             //canvas.points.removeAllElements();
 
-                                                 //canvas.points.removeAllElements();
-                                                 canvas.segments.removeAllElements();
+                                             //canvas.points.removeAllElements();
+                                             canvas.segments.removeAllElements();
 
-                                                 enveloppeConvexe = false;
-                                                 monotoneTriangulation = false;
-                                                 intersectionSegments = true;
+                                             enveloppeConvexe = false;
+                                             monotoneTriangulation = false;
+                                             intersectionSegments = true;
 
-                                                 canvas.calculer();
-                                                 canvas.repaint();
-                                             }
+                                             canvas.calculer();
+                                             canvas.repaint();
                                          }
+                                     }
         );
 
         // Action du bouton Triangulation Monotone

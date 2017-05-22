@@ -39,51 +39,168 @@ class Algorithmes {
     }
 
 
+    /* Intersection de segment */
     static Vector<Segment> segmentsIntersection(Vector<Point> points){
         Vector<Segment> segments = new Vector<>();
 
-        for(int i=0; i < points.size(); i+=2){
-            if( i < points.size()-1 ){
-                Segment newSeg = new Segment( points.elementAt(i), points.elementAt(i+1) );
-                newSeg.number = i/2;
-                segments.add(newSeg);
+        for(int i=0; i < points.size()-1; i+=2){
+            Segment newSeg;
+
+            // Classement des points en Upper/Lower point dans notre segment :
+            // a = Upper
+            // b = Lower
+            if( points.elementAt(i).y < points.elementAt(i+1).y )
+                newSeg = new Segment( points.elementAt(i), points.elementAt(i+1) );
+            else if( points.elementAt(i).y > points.elementAt(i+1).y )
+                newSeg = new Segment( points.elementAt(i+1), points.elementAt(i) );
+            else {
+                if( points.elementAt(i+1).x < points.elementAt(i).x )
+                    newSeg = new Segment(points.elementAt(i+1), points.elementAt(i));
+                else
+                    newSeg = new Segment(points.elementAt(i), points.elementAt(i+1));
             }
+
+            newSeg.number = i/2;
+            segments.add(newSeg);
+
         }
 
-
-        findIntersections(segments);
+        // On lance une recherche d'intersection uniquement si le nombre total de points est modulo 2.
+        if( points.size()%2 == 0 && points.size() > 2 )
+            findIntersections(segments);
 
         return segments;
     }
 
+    /* Trouver les intersections entre tous les segments tracés */
     static void findIntersections(Vector<Segment> segments){
 
-        Vector<Segment> localSegment = new Vector<Segment>(segments);
-        List<Integer> eventList = new ArrayList<>();
+        // liste locale de segments que l'on peu supprimer.
+        Vector<Segment> localSegments = new Vector<Segment>(segments);
 
+        /*
+            Entrée : tous les segments ont un point Upper(extrémité du haut) et Lower(extrémité du bas).
+            Ces deux points, sont déjà triés suivant y & x
 
-        //find handle point
-    }
+            Nous trions alors tous les segments de façon à ce qu'ils soient ordonnées du Upper le plus haut dans la fenêtre, vers le plus bas.
+            Note : si deux segments ont la même coordonnée ̀y` pour leur UpperPoint, alors on les différencies suivant leur `x`
 
+            On peut remplir alors une "pile" d'évènements à venir.
+        */
 
-    static void findMinusY(Vector<Segment> segments){
+        // TRIE A BULLE :
+        // Ce tri permet notamment d'éviter des erreurs dans le cas où plusieurs
+        // segment auraient le même point d'entrée (UpperPoint).
+        boolean flag = false;
+        while( flag != true ){
 
-        Double actualSegment;
-        Segment minusYsegment;
+            int cpt = 0;
+            int i = 0;
 
-        for(int i=0; i < segments.size(); ++i){
+            for(i=0; i < localSegments.size()-1; ++i){
 
-            if( segments.elementAt(i).a.y < segments.elementAt(i).b.y )
-                actualSegment = segments.elementAt(i).a.y;
-            else
-                actualSegment = segments.elementAt(i).b.y;
+               if( localSegments.elementAt(i).a.y > localSegments.elementAt((i+1)).a.y ){
+                   Collections.swap(localSegments,i+1 ,i);
+                   ++cpt;
+               }
+               else if( localSegments.elementAt(i).a.y == localSegments.elementAt((i+1)).a.y ){
+                   if( localSegments.elementAt(i).a.x > localSegments.elementAt((i+1)).a.x ){
+                       Collections.swap(localSegments, i+1, i);
+                       ++cpt;
+                   }
+               }
+            }
 
-
+            if( cpt == 0 ) flag = true;
         }
 
+
+        //DEBUG
+        for(int i=0; i < localSegments.size(); ++i){
+            System.out.print(localSegments.elementAt(i).number+" ");
+        }
+        System.out.println();
+
+        // Fonction de comparaison pour notre TreeSet
+        class SegmentCompare implements Comparator<Segment>{
+            @Override
+            public int compare(Segment one, Segment two) {
+                if (one.a.x < two.a.x) return -1;
+                if (one.a.x > two.a.x) return 1;
+                return 0;
+            }
+        }
+
+        // Création de notre TreeSet:
+        TreeSet<Segment> tree = new TreeSet<Segment>(new SegmentCompare());
+        // Notre itérateur
+        Iterator<Segment> iterator;
+
+        Vector<Segment> addEvent = new Vector<Segment>();
+        Vector<Segment> deleteEvent = new Vector<Segment>();
+        Vector<Segment> containEvent = new Vector<Segment>();
+
+        double sweepLine = 0;
+        while( localSegments.size() > 0 ){
+            for(int i=0; i < localSegments.size(); ++i){
+                // EVENT : Ajout d'un point
+                // Check en même temps les intersections avec ces deux nouveaux voisins.
+                if( localSegments.elementAt(i).a.y == sweepLine ){
+
+                }
+
+                // EVENT : Suppression d'un point
+                // Les deux anciens voisins, deviennent voisins entre eux.
+                // Check en même temps les intersections avec ces deux voisins.
+                if( localSegments.elementAt(i).b.y == sweepLine ){
+
+                }
+            }
+            ++sweepLine;
+        }
+
+        // ####
+        //
+        //
+        // http://www.cdn.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+        //
+        //
+        //
+        // ####
+
+
+        /*for(int i=0; i < localSegments.size(); ++i){
+            tree.add(localSegments.elementAt(i));
+
+            iterator = tree.iterator();
+            // Affichage du TreeSet
+            while (iterator.hasNext()) {
+                System.out.print(iterator.next().number + " ");
+            }
+            System.out.println();
+        }*/
+
+
+
+
+
+
+
+
+
+       /* // On traite maintenant les différents évènements :
+        Vector<Segment> eventSegments = new Vector<>();
+
+        for(int i=0; i < localSegments.size(); ++i){
+            handleEventSegment(localSegments.elementAt(i), eventSegments);
+        }
+        */
+
     }
 
+    static boolean simpleCrossProduct(Point pOne, Point pTwo){
 
+    }
 
     static Vector<Segment> quickHull(Vector<Point> points){
         Vector<Segment> pConvexe = new Vector<>();
@@ -212,6 +329,7 @@ class Algorithmes {
         return r % n;
     }
 
+    /* Triangulation */
     static void tagPoints(Vector<Point> points) {
 
         int min = 0;
