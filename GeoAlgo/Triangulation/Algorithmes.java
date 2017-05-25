@@ -72,6 +72,16 @@ class Algorithmes {
         return segments;
     }
 
+    static class segmentCouple {
+        public Segment segA;
+        public Segment segB;
+
+        public segmentCouple(Segment _segA, Segment _segB){
+            segA = _segA;
+            segB = _segB;
+        }
+    }
+
     /* Trouver les intersections entre tous les segments tracés */
     static void findIntersections(Vector<Segment> segments){
 
@@ -128,6 +138,9 @@ class Algorithmes {
         Iterator<Segment> iterator;  // Notre itérateur
         Vector<Segment> deleteEvent = new Vector<Segment>();
 
+
+        Vector<segmentCouple> intersections = new Vector<segmentCouple>();
+
         Segment segMain;
         Segment segOne;
         Segment segTwo;
@@ -154,82 +167,66 @@ class Algorithmes {
                     tree.add( segMain );
 
                     // CHECK FOR INTERSECTIONS
-                    if( tree.size() > 1 ){
+                   if( tree.size() > 1 ) {
+                       // Insertion à l'extrémité gauche de l'arbre : -> first()
+                       if (tree.first() == segMain) {
+                           segOne = tree.higher(segMain);
+                           if (doIntersect(segMain.a, segMain.b, segOne.a, segOne.b)) {
+                               if (!existYet(intersections, new segmentCouple(segMain, segOne))) {
+                                   intersections.add(new segmentCouple(segMain, segOne));
+                               }
+                           }
+                       }
 
-                        if( tree.first() == segMain ){
-                            segOne = tree.higher(segMain);
+                       // Insertion à l'extrémité droite de l'arbre : -> last()
+                       else if (tree.last() == segMain) {
+                           segOne = tree.lower(segMain);
 
-                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
-                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+                           if (doIntersect(segMain.a, segMain.b, segOne.a, segOne.b)) {
+                               if (!existYet(intersections, new segmentCouple(segMain, segOne))){
+                                   intersections.add(new segmentCouple(segMain, segOne));
+                               }
+                           }
+                       }
 
-                        }
-                        // Insertion à l'extrémité droite de l'arbre : -> last()
-                        else if( tree.last() == segMain ){
-                            segOne = tree.lower(segMain);
+                       // Insertion entre deux autres voisins :
+                       else {
+                           segOne = tree.lower(segMain);
+                           segTwo = tree.higher(segMain);
 
-                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
-                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
-                        }
-                        else{
-                            segOne = tree.lower(segMain);
-                            segTwo = tree.higher(segMain);
-
-                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
-                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
-
-                            if( doIntersect( segMain.a, segMain.b, segTwo.a, segTwo.b) )
-                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segTwo.number +")");
-                        }
-
-                    }
+                           if (doIntersect(segMain.a, segMain.b, segOne.a, segOne.b)) {
+                               if (!existYet(intersections, new segmentCouple(segMain, segOne))){
+                                   intersections.add(new segmentCouple(segMain, segOne));
+                               }
+                           }
 
 
-                    iterator = tree.iterator();
-                    while (iterator.hasNext()) {
-                        System.out.print(iterator.next().number + " ");
-                    }
-                    System.out.println();
-
+                           if (doIntersect(segMain.a, segMain.b, segTwo.a, segTwo.b)) {
+                               if (!existYet(intersections, new segmentCouple(segMain, segOne))){
+                                   intersections.add(new segmentCouple(segMain, segTwo));
+                               }
+                           }
+                       }
+                   }
                 }
 
                 if( segMain.b.y == sweepLine ){
-                    if(tree.size() > 1){
+                   if(tree.size() > 1){
                         if( segMain != tree.first() && segMain != tree.last() ){
                             segOne = tree.higher(segMain);
                             segTwo = tree.lower(segMain);
 
-                            if( doIntersect( segOne.a, segOne.b, segTwo.a, segTwo.b) )
-                                System.out.println("INTERSECTION ("+ segOne.number +" & "+ segTwo.number +")");
-                        }
-                        else if( segMain == tree.first() ){
-                            segOne = segMain;
-                            for (int j = 1; j < tree.size(); ++j){
-                                segOne = tree.higher(segOne);
+                            if( doIntersect( segOne.a, segOne.b, segTwo.a, segTwo.b) ){
+                                if( !existYet(intersections, new segmentCouple(segOne, segTwo) ) ){
+                                    intersections.add( new segmentCouple(segOne, segTwo));
+                                }
 
-                                if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
-                                    System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
-                            }
-
-                        }
-                        else if( segMain == tree.last() ){
-                            segOne = segMain;
-                            for (int j = 1; j < tree.size(); ++j){
-                                segOne = tree.lower(segOne);
-
-                                if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
-                                    System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
                             }
                         }
                     }
 
                     tree.remove( localSegments.elementAt(i) );
-                    deleteEvent.add( localSegments.elementAt(i) );
-
-                    iterator = tree.iterator();
-                    while (iterator.hasNext()) {
-                        System.out.print(iterator.next().number + " ");
-                    }
-                    System.out.println();
+                    deleteEvent.add( segMain );
                 }
             }
 
@@ -242,12 +239,43 @@ class Algorithmes {
             ++sweepLine;
         }
 
+        System.out.println("INTERSECTION(S):");
+        for(int i=0; i < intersections.size(); ++i){
+            System.out.println(" { "+ intersections.elementAt(i).segA.number + " & " + intersections.elementAt(i).segB.number + " }" );
+        }
+
         System.out.println("-- END --");
 
         // ####
         // http://www.cdn.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
         // ####
     }
+
+    static boolean existYet(Vector<segmentCouple> intersections, segmentCouple newInter){
+        for(int i=0; i < intersections.size(); ++i){
+            if( intersections.elementAt(i).segA.number == newInter.segA.number && intersections.elementAt(i).segB.number == newInter.segB.number )
+                return true;
+
+            if( intersections.elementAt(i).segA.number == newInter.segB.number && intersections.elementAt(i).segB.number == newInter.segA.number )
+                return true;
+        }
+        return false;
+    }
+
+
+    static boolean liesOnLine(Point pCurrent, Point pOne, Point pTwo){
+        double donex = pCurrent.x - pOne.x;
+        double doney = pCurrent.y - pOne.y;
+
+        double dtwox = pTwo.x - pOne.x;
+        double dtwoy = pTwo.y - pOne.y;
+
+        double cross = (donex * dtwoy) - (doney * dtwox);
+
+        if(cross == 0) return true;
+        return false;
+    }
+
 
     // Technique pour la recherche d'intersections trouvée en ligne à l'adresse suivante :
     // ##### http://www.cdn.geeksforgeeks.org/check-if-two-given-line-segments-intersect/ #####
