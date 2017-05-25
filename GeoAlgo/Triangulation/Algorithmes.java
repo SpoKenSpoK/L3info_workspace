@@ -114,13 +114,6 @@ class Algorithmes {
             if( cpt == 0 ) flag = true;
         }
 
-
-        //DEBUG
-        for(int i=0; i < localSegments.size(); ++i){
-            System.out.print(localSegments.elementAt(i).number+" ");
-        }
-        System.out.println();
-
         // Fonction de comparaison pour notre TreeSet
         class SegmentCompare implements Comparator<Segment>{
             @Override
@@ -131,75 +124,187 @@ class Algorithmes {
             }
         }
 
-        // Création de notre TreeSet:
-        TreeSet<Segment> tree = new TreeSet<Segment>(new SegmentCompare());
-        // Notre itérateur
-        Iterator<Segment> iterator;
-
-        Vector<Segment> addEvent = new Vector<Segment>();
+        TreeSet<Segment> tree = new TreeSet<Segment>(new SegmentCompare()); // Création de notre TreeSet:
+        Iterator<Segment> iterator;  // Notre itérateur
         Vector<Segment> deleteEvent = new Vector<Segment>();
-        Vector<Segment> containEvent = new Vector<Segment>();
+
+        Segment segMain;
+        Segment segOne;
+        Segment segTwo;
+
+        System.out.println("-- START --");
+
+        //DEBUG
+        for(int i=0; i < localSegments.size(); ++i){
+            System.out.print(localSegments.elementAt(i).number+" ");
+        }
+        System.out.println();
 
         double sweepLine = 0;
         while( localSegments.size() > 0 ){
+
             for(int i=0; i < localSegments.size(); ++i){
                 // EVENT : Ajout d'un point
-                // Check en même temps les intersections avec ces deux nouveaux voisins.
-                if( localSegments.elementAt(i).a.y == sweepLine ){
+                // Ajout le nouveau segment
+                // Check les intersections avec ces deux nouveaux voisins
+
+                segMain = localSegments.elementAt(i);
+
+                if( segMain.a.y == sweepLine ){
+                    tree.add( segMain );
+
+                    // CHECK FOR INTERSECTIONS
+                    if( tree.size() > 1 ){
+
+                        if( tree.first() == segMain ){
+                            segOne = tree.higher(segMain);
+
+                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
+                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+
+                        }
+                        // Insertion à l'extrémité droite de l'arbre : -> last()
+                        else if( tree.last() == segMain ){
+                            segOne = tree.lower(segMain);
+
+                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
+                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+                        }
+                        else{
+                            segOne = tree.lower(segMain);
+                            segTwo = tree.higher(segMain);
+
+                            if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
+                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+
+                            if( doIntersect( segMain.a, segMain.b, segTwo.a, segTwo.b) )
+                                System.out.println("INTERSECTION ("+ segMain.number +" & "+ segTwo.number +")");
+                        }
+
+                    }
+
+
+                    iterator = tree.iterator();
+                    while (iterator.hasNext()) {
+                        System.out.print(iterator.next().number + " ");
+                    }
+                    System.out.println();
 
                 }
 
-                // EVENT : Suppression d'un point
-                // Les deux anciens voisins, deviennent voisins entre eux.
-                // Check en même temps les intersections avec ces deux voisins.
-                if( localSegments.elementAt(i).b.y == sweepLine ){
+                if( segMain.b.y == sweepLine ){
+                    if(tree.size() > 1){
+                        if( segMain != tree.first() && segMain != tree.last() ){
+                            segOne = tree.higher(segMain);
+                            segTwo = tree.lower(segMain);
 
+                            if( doIntersect( segOne.a, segOne.b, segTwo.a, segTwo.b) )
+                                System.out.println("INTERSECTION ("+ segOne.number +" & "+ segTwo.number +")");
+                        }
+                        else if( segMain == tree.first() ){
+                            segOne = segMain;
+                            for (int j = 1; j < tree.size(); ++j){
+                                segOne = tree.higher(segOne);
+
+                                if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
+                                    System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+                            }
+
+                        }
+                        else if( segMain == tree.last() ){
+                            segOne = segMain;
+                            for (int j = 1; j < tree.size(); ++j){
+                                segOne = tree.lower(segOne);
+
+                                if( doIntersect( segMain.a, segMain.b, segOne.a, segOne.b) )
+                                    System.out.println("INTERSECTION ("+ segMain.number +" & "+ segOne.number +")");
+                            }
+                        }
+                    }
+
+                    tree.remove( localSegments.elementAt(i) );
+                    deleteEvent.add( localSegments.elementAt(i) );
+
+                    iterator = tree.iterator();
+                    while (iterator.hasNext()) {
+                        System.out.print(iterator.next().number + " ");
+                    }
+                    System.out.println();
                 }
             }
+
+            // En cas de suppression, on enlève le segment de la liste des segments.
+            for(int i=0; i < deleteEvent.size(); ++i){
+                localSegments.removeElement( deleteEvent.elementAt(i) );
+            }
+            deleteEvent.clear();
+
             ++sweepLine;
         }
 
+        System.out.println("-- END --");
+
         // ####
-        //
-        //
         // http://www.cdn.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-        //
-        //
-        //
         // ####
-
-
-        /*for(int i=0; i < localSegments.size(); ++i){
-            tree.add(localSegments.elementAt(i));
-
-            iterator = tree.iterator();
-            // Affichage du TreeSet
-            while (iterator.hasNext()) {
-                System.out.print(iterator.next().number + " ");
-            }
-            System.out.println();
-        }*/
-
-
-
-
-
-
-
-
-
-       /* // On traite maintenant les différents évènements :
-        Vector<Segment> eventSegments = new Vector<>();
-
-        for(int i=0; i < localSegments.size(); ++i){
-            handleEventSegment(localSegments.elementAt(i), eventSegments);
-        }
-        */
-
     }
 
-    static boolean simpleCrossProduct(Point pOne, Point pTwo){
+    // Technique pour la recherche d'intersections trouvée en ligne à l'adresse suivante :
+    // ##### http://www.cdn.geeksforgeeks.org/check-if-two-given-line-segments-intersect/ #####
+    static boolean onSegment(Point p, Point q, Point r)
+    {
+        if (q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) && q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y))
+            return true;
 
+        return false;
+    }
+
+    // To find orientation of ordered triplet (p, q, r).
+    // The function returns following values
+    // 0 --> p, q and r are colinear
+    // 1 --> Clockwise
+    // 2 --> Counterclockwise
+    static int orientation(Point p, Point q, Point r)
+    {
+        // See http://www.geeksforgeeks.org/orientation-3-ordered-points/
+        // for details of below formula.
+        double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+        if (val == 0) return 0;     // Segment colinéaire
+        return (val > 0)? 1: 2;     // Segment non-colinéaire
+    }
+
+    // The main function that returns true if line segment 'p1q1' and 'p2q2' intersect.
+    /*
+        Tous les cas spéciaux sont expliqués en ligne sur le lien donné plus haut
+     */
+    static boolean doIntersect(Point p1, Point q1, Point p2, Point q2)
+    {
+        // Find the four orientations needed for general and
+        // special cases
+        int o1 = orientation(p1, q1, p2);
+        int o2 = orientation(p1, q1, q2);
+        int o3 = orientation(p2, q2, p1);
+        int o4 = orientation(p2, q2, q1);
+
+        // General case
+        if (o1 != o2 && o3 != o4)
+            return true;
+
+       // Special Cases
+        // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+        if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+        // p1, q1 and p2 are colinear and q2 lies on segment p1q1
+        if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+        // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+        if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+        // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+        if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+
+        return false; // Doesn't fall in any of the above cases
     }
 
     static Vector<Segment> quickHull(Vector<Point> points){
